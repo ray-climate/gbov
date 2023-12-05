@@ -1,0 +1,34 @@
+GBOV_Product=RM1
+Raw_Data_Investigators=Ivan Janssens - Ivan.Janssens@uantwerpen.be
+Raw_Data_Affiliations=University of Antwerp
+Raw_Data_Contact=Ivan.Janssens@uantwerpen.be
+GBOV_EMAIL=support-copernicus-gbov@acri-st.fr
+Site_Name=Brasschaat
+Station_Name=Brasschaat
+Site_Description=The site Brasschaat is located at De Inslag, a forest mainly covered with Scots pine planted in 1929 near urban area on sandy soil. The measurements are taken at different heights on a 40 m scaffolding tower. Flux and meteorological data are available since 1997.
+NetWork_Membership=FluxNet
+Online_Resources=http://www.icos-belgium.be/;https://www.icos-ri.eu
+Data_Type=Short wave radiation, RM1
+GBOV_Processing_Version=2.0
+ATBD=ATBD-RM1-LP1-LP2_Energy
+Start_Date=2021-01-01
+End_Date=2021-12-31
+Start_Time=00:00:00[UTC]
+End_Time=23:59:59[UTC]
+Northern_Latitude=51.3075
+Southern_Latitude=51.3075
+Eastern_Longitude=4.5199
+Western_Longitude=4.5199
+IGBP_Class=5 - Mixed Forest
+Land_Cover_Class=90
+Biome=4
+Eco_Region=Atlantic mixed forests
+No_Data_Value=-999.0
+Delimiter=;
+
+Release_Version_History
+1.0/2020-01-14 09:41:49
+
+Header=GBOV_ID;Site;GROUND_DATA_PI;GROUND_DATA_PIs_Email;GBOV_Email;Network;Elevation;IGBP_class;Lat_IS;Lon_IS;TIME_IS;Version;SW_IN;SW_OUT;SW_DIF;QC_SW_IN;QC_SW_DIF;QC_SW_OUT
+Unit=;;;;;;m;;deg;deg;;;W.m-2;W.m-2;W.m-2;DL;DL;DL
+Type=string;string;string;string;string;string;integer;string;float;float;timestamp_YYYYMMDDThhmmssZ;string;float;float;float;integer;integer;integer
