@@ -10,14 +10,13 @@ import os
 
 def main():
 
-    rm1_dir = '../ReferenceMeasurements/RM1_data'
     tower_retrieval_dir = '../ReferenceMeasurements/OUTPUT_dhr_bhr_tocr'
 
     upscale_filelist = []
-    for file in os.listdir(rm1_dir):
-        if file.endswith('GBOV_RM01_Brasschaat_001_20210101T000000Z_20211231T233000Z_007_ACR_V2.0.csv'):
-            upscale_filelist.append(file[:-4])
-            print('Site to be upscaled: ', file[:-4])
+    for file in os.listdir(tower_retrieval_dir):
+        if file.endswith('GBOV_RM01_Brasschaat_001_20210101T000000Z_20211231T233000Z_007_ACR_V2.0_DHR.csv'):
+            upscale_filelist.append(file[:-8])
+            print('Site to be upscaled: ', file[:-8])
 
     for file in upscale_filelist:
 
