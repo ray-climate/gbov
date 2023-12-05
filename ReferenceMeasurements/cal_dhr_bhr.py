@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-# @Filename:    cal_DHR.py
+# @Filename:    cal_dhr_bhr.py
 # @Author:      Dr. Rui Song
 # @Email:       rui.song@physics.ox.ac.uk
 # @Time:        03/12/2023 21:24
@@ -30,7 +30,7 @@ def get_sza(dates, latitude, longitude):
 
     return sza
 
-def cal_tower_dhr(data, start_datetime, nominal_datetime, end_datetime, latitude, longitude, alpha_DHR):
+def cal_tower_dhr_bhr(data, start_datetime, nominal_datetime, end_datetime, latitude, longitude, alpha_DHR, alpha_BHR):
 
     szaMax = 75.  # the applied BRDF model is only valid for the maximum sza of 75.
     szaGap = 5.
@@ -66,13 +66,39 @@ def cal_tower_dhr(data, start_datetime, nominal_datetime, end_datetime, latitude
 
     print("DHR is calculated by averaging data with diffuse ratio smaller than %s" % alpha_DHR)
     # cal dhr_avg using data['SW_IN'] / data['SW_OUT'], but only when data['SW_DIF_ratio'] < alpha_DHR
-    data = data[data['SW_DIF_ratio'] < alpha_DHR]
-    dhr_avg = data['SW_OUT'] / data['SW_IN']
 
-    if len(dhr_avg) > 0:
-        DHR_value = np.mean(dhr_avg[dhr_avg>0])
-    else:
+    while alpha_DHR <= 0.25:
+
+        data_dhr = data[data['SW_DIF_ratio'] <= alpha_DHR]
+        dhr_avg = data_dhr['SW_OUT'] / data_dhr['SW_IN']
+
+        if len(dhr_avg[dhr_avg > 0]) > 0:
+            DHR_value = np.mean(dhr_avg[dhr_avg > 0])
+            break
+        else:
+            alpha_DHR += 0.02
+
+    # set DHR_value to nan if alpha_DHR > 0.25
+    if alpha_DHR > 0.25:
         DHR_value = np.nan
+
     print("DHR is calculated: %s" % DHR_value)
 
-    return DHR_value
+    while alpha_BHR >= 0.5:
+
+        data_bhr = data[data['SW_DIF_ratio'] >= alpha_BHR]
+        bhr_avg = data_bhr['SW_OUT'] / data_bhr['SW_IN']
+
+        if len(bhr_avg[bhr_avg > 0]) > 0:
+            BHR_value = np.mean(bhr_avg[bhr_avg>0])
+            break
+        else:
+            alpha_BHR -= 0.02
+
+    # set BHR_value to nan if alpha_BHR < 0.75
+    if alpha_BHR < 0.5:
+        BHR_value = np.nan
+
+    print("BHR is calculated: %s" % BHR_value)
+
+    return DHR_value, BHR_value
