@@ -28,6 +28,10 @@ def create_rgb_quicklook(band2, band3, band4, output_file):
         array_min, array_max = array.min(), array.max()
         return ((array - array_min)/(array_max - array_min))
 
+    band4[band4 < 0] = 0
+    band3[band3 < 0] = 0
+    band2[band2 < 0] = 0
+
     # Normalize the bands
     band_red = normalize(band4)
     band_green = normalize(band3)
@@ -70,17 +74,17 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_
 
     sentinel2_dhr_dir = os.path.join(sentinel2_dir, 'tile_0', 'albedo')
     for dhr_file in os.listdir(sentinel2_dhr_dir):
-        if dhr_file.endswith('B02_UCL_bhr.jp2'):
+        if dhr_file.endswith('B02_UCL_dhr.jp2'):
             dhr_b02 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
-        if dhr_file.endswith('B03_UCL_bhr.jp2'):
+        if dhr_file.endswith('B03_UCL_dhr.jp2'):
             dhr_b03 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
-        if dhr_file.endswith('B04_UCL_bhr.jp2'):
+        if dhr_file.endswith('B04_UCL_dhr.jp2'):
             dhr_b04 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
-        if dhr_file.endswith('BA8_UCL_bhr.jp2'):
+        if dhr_file.endswith('B8A_UCL_dhr.jp2'):
             dhr_b8A = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
-        if dhr_file.endswith('B11_UCL_bhr.jp2'):
+        if dhr_file.endswith('B11_UCL_dhr.jp2'):
             dhr_b11 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
-        if dhr_file.endswith('B12_UCL_bhr.jp2'):
+        if dhr_file.endswith('B12_UCL_dhr.jp2'):
             dhr_b12 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
 
     # find the dhr_b02 pixel within the radius, center at the given lat, lon
