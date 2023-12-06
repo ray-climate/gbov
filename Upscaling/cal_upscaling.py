@@ -93,7 +93,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
 
     # Calculate the distance from the tower for all pixels
     distance_mesh = np.sqrt((x_geo_mesh - tower_utm_x) ** 2 + (y_geo_mesh - tower_utm_y) ** 2)
-
+    print('distance_mesh: ', distance_mesh)
     # Find pixels within the specified radius
     pixels_within_radius = np.where(distance_mesh <= radius)
     print('pixels_within_radius: ', pixels_within_radius[0])
