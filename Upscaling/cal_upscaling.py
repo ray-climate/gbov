@@ -51,14 +51,14 @@ def create_rgb_quicklook(band2, band3, band4, output_file):
     plt.imsave(output_file, rgb, cmap='gray')
 
 
-def find_closest_date_file(target_date, directory):
+def find_closest_date_file(target_date, sentinel2_list):
     """
     Find the file in the directory with the date closest to the target date.
     """
     closest_file = None
     min_diff = float('inf')
 
-    for file in os.listdir(directory):
+    for file in sentinel2_list:
         # Extracting the date from the file name (assuming YYYYMMDD format after second underscore)
         try:
             file_date_str = file.split('_')[2]
@@ -133,6 +133,7 @@ def main():
     tower_retrieval_dir = '../ReferenceMeasurements/OUTPUT_dhr_bhr_tocr'
     sentinel2_dir = '/gws/nopw/j04/gbov/ruis/gbov/Sentinel2'
     OUTPUT_dir = './OUTPUT'
+    cloud_ratio_threshold = 0.2
 
     os.makedirs(OUTPUT_dir, exist_ok=True)
 
@@ -171,11 +172,11 @@ def main():
                 for file in os.listdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
                     if os.path.isdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
                         cloud_ratio = cal_cloud_covering_ratio(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0], file))
-                        sentinel2_list.append(file)
-                        print('Cloud ratio for %s: ' %file, cloud_ratio)
 
-                # print('Sentinel2 list: ', sentinel2_list)
-            quit()
+                        print('Cloud ratio for %s: ' %file, cloud_ratio)
+                        if cloud_ratio < cloud_ratio_threshold:
+                            print('Sentinel2 list: ', sentinel2_list)
+                            sentinel2_list.append(file)
 
             if row['DHR'] > 0:
                 year_str = row['Datetime'].split('-')[0]
@@ -185,7 +186,7 @@ def main():
 
                 # Convert the date string to a datetime object
                 row_date = datetime.strptime(row['Datetime'].replace('-', ''), '%Y%m%d')
-                closest_file = find_closest_date_file(row_date, sentinel2_site_dir)
+                closest_file = find_closest_date_file(row_date, sentinel2_list)
 
                 if closest_file:
                     print('Upscale datetime using Sentinel2 data: ', row['Datetime'],

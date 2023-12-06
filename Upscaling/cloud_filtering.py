@@ -22,6 +22,6 @@ def cal_cloud_covering_ratio(sentinel2_dir):
 
     # get the subarray from plus minus 200 pixels from the center.
     subarray = dhr_b02.ReadAsArray(center_index_x - 200, center_index_y - 200, 400, 400)
-    cloud_ratio = np.size(subarray[subarray < 0]) / np.size(subarray)
+    cloud_ratio = 1 - np.size(subarray[subarray < 0]) / np.size(subarray)
 
     return cloud_ratio
