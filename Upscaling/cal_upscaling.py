@@ -5,6 +5,7 @@
 # @Email:       rui.song@physics.ox.ac.uk
 # @Time:        05/12/2023 22:35
 
+from cloud_filtering import cal_cloud_covering_ratio
 import matplotlib.pyplot as plt
 from datetime import datetime
 from osgeo import gdal
@@ -169,8 +170,11 @@ def main():
                 sentinel2_list = []
                 for file in os.listdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
                     if os.path.isdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
+                        cloud_ratio = cal_cloud_covering_ratio(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0], file))
                         sentinel2_list.append(file)
-                print('Sentinel2 list: ', sentinel2_list)
+                        print('Cloud ratio for %s: ' %file, cloud_ratio)
+
+                # print('Sentinel2 list: ', sentinel2_list)
             quit()
 
             if row['DHR'] > 0:
