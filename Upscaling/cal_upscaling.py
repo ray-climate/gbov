@@ -122,8 +122,6 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_
     pixels_within_radius = np.where(distance_mesh <= radius)
     # get the last part of filename from sentinel2_dhr_dir
     filename = sentinel2_dhr_dir.split('/')[-3]
-    print('filename: ', filename)
-    quit()
 
     create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
     quit()
