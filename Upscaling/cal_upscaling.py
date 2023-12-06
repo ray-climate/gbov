@@ -8,6 +8,7 @@
 from datetime import datetime
 import pandas as pd
 from osgeo import gdal
+import numpy as np
 import os
 
 # tower coordinate dic.
@@ -43,8 +44,28 @@ def dhr_correction(sentinel2_dir):
     for dhr_file in os.listdir(sentinel2_dhr_dir):
         if dhr_file.endswith('B02_UCL_bhr.jp2'):
             dhr_b02 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
-            dhr_b02_array = dhr_b02.ReadAsArray()
-            print(dhr_b02_array.shape)
+        if dhr_file.endswith('B03_UCL_bhr.jp2'):
+            dhr_b03 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
+        if dhr_file.endswith('B04_UCL_bhr.jp2'):
+            dhr_b04 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
+        if dhr_file.endswith('BA8_UCL_bhr.jp2'):
+            dhr_b8A = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
+        if dhr_file.endswith('B11_UCL_bhr.jp2'):
+            dhr_b11 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
+        if dhr_file.endswith('B12_UCL_bhr.jp2'):
+            dhr_b12 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
+    print(np.mean(dhr_b02.ReadAsArray()))
+    quit()
+    cols = dhr_b02.RasterXSize
+    rows = dhr_b02.RasterYSize
+
+    transform = dhr_b02.GetGeoTransform()
+    xOrigin = transform[0]
+    yOrigin = transform[3]
+    pixelWidth = transform[1]
+    pixelHeight = -transform[5]
+
+
 def main():
 
     tower_retrieval_dir = '../ReferenceMeasurements/OUTPUT_dhr_bhr_tocr'
