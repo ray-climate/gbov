@@ -7,6 +7,7 @@
 
 from datetime import datetime
 import pandas as pd
+import gdal
 import os
 
 # tower coordinate dic.
@@ -35,6 +36,14 @@ def find_closest_date_file(target_date, directory):
             continue
 
     return closest_file
+
+def dhr_correction(sentinel2_dir):
+
+    sentinel2_dhr_dir = os.path.join(sentinel2_dir, 'tile_0', 'albedo')
+    for dhr_file in os.listdir(sentinel2_dhr_dir):
+        if dhr_file.endswith('B02_UCL_bhr.jp2'):
+            dhr_b02 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
+
 
 def main():
 
@@ -79,6 +88,9 @@ def main():
                           os.path.join(sentinel2_site_dir, closest_file))
                 else:
                     print('No matching file found for', row['Datetime'])
+
+                dhr_correction(os.path.join(sentinel2_site_dir, closest_file))
+                quit()
 
 
 
