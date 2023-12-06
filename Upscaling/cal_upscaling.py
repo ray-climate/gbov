@@ -5,6 +5,7 @@
 # @Email:       rui.song@physics.ox.ac.uk
 # @Time:        05/12/2023 22:35
 
+import matplotlib.pyplot as plt
 from datetime import datetime
 from osgeo import gdal
 import pandas as pd
@@ -19,6 +20,25 @@ tower_coordinate['Brasschaat'] = [51.3075, 4.5199, 'BRAS']
 # instrument and canopy height.
 canopy_height = {}
 canopy_height['Brasschaat'] = [40., 21., 'BRAS']
+
+# a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
+def create_rgb_quicklook(band2, band3, band4, output_file):
+
+    def normalize(array):
+        array_min, array_max = array.min(), array.max()
+        return ((array - array_min)/(array_max - array_min))
+
+    # Normalize the bands
+    band_red = normalize(band4)
+    band_green = normalize(band3)
+    band_blue = normalize(band2)
+
+    # Stack bands
+    rgb = np.dstack((band_red, band_green, band_blue))
+
+    # Save the image
+    plt.imsave(output_file, rgb)
+
 
 def find_closest_date_file(target_date, directory):
     """
@@ -43,7 +63,7 @@ def find_closest_date_file(target_date, directory):
 
     return closest_file
 
-def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
+def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_dir):
 
     radius = np.tan(np.deg2rad(85.)) * (height_tower - height_canopy)
     print('radius: ', radius)
@@ -90,8 +110,10 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
     print('distance_mesh: ', distance_mesh)
     # Find pixels within the specified radius
     pixels_within_radius = np.where(distance_mesh <= radius)
-    print('pixels_within_radius: ', pixels_within_radius[0])
+    create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb.png'))
     quit()
+
+
 
 
 
@@ -99,6 +121,9 @@ def main():
 
     tower_retrieval_dir = '../ReferenceMeasurements/OUTPUT_dhr_bhr_tocr'
     sentinel2_dir = '/gws/nopw/j04/gbov/ruis/gbov/Sentinel2'
+    OUTPUT_dir = './OUTPUT'
+
+    os.makedirs(OUTPUT_dir, exist_ok=True)
 
     upscale_filelist = []
     for file in os.listdir(tower_retrieval_dir):
@@ -107,6 +132,9 @@ def main():
             print('Site to be upscaled: ', file[:-8])
 
     for tower_file in upscale_filelist:
+
+        OUTPUT_site_dir = os.path.join(OUTPUT_dir, tower_file)
+        os.makedirs(OUTPUT_site_dir, exist_ok=True)
 
         dhr_file = os.path.join(tower_retrieval_dir, tower_file + '_DHR.csv')
         bhr_file = os.path.join(tower_retrieval_dir, tower_file + '_BHR.csv')
@@ -141,9 +169,8 @@ def main():
                 else:
                     print('No matching file found for', row['Datetime'])
 
-                dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, lat, lon)
+                dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, lat, lon, OUTPUT_site_dir)
                 quit()
-
 
 
 if __name__ == '__main__':
