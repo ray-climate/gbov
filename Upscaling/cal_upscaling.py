@@ -87,6 +87,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
     UL_y = yOrigin
     LR_x = xOrigin + dhr_b02.RasterXSize * pixelWidth
     LR_y = yOrigin + dhr_b02.RasterYSize * pixelHeight
+    print('UL_x, UL_y, LR_x, LR_y: ', UL_x, UL_y, LR_x, LR_y)
 
     x_indices = np.arange(UL_x, LR_x, dhr_b02.RasterXSize + 1)
     y_indices = np.arange(UL_y, LR_y, dhr_b02.RasterYSize + 1)
