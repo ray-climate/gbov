@@ -96,7 +96,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
 
     # Find pixels within the specified radius
     pixels_within_radius = np.where(distance_mesh <= radius)
-    print('pixels_within_radius: ', pixels_within_radius)
+    print('pixels_within_radius: ', pixels_within_radius[0])
     quit()
 
 
