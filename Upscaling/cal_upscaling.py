@@ -120,11 +120,9 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_
     print('distance_mesh: ', distance_mesh)
     # Find pixels within the specified radius
     pixels_within_radius = np.where(distance_mesh <= radius)
-    # get the last part of filename from sentinel2_dhr_dir
-    filename = sentinel2_dhr_dir.split('/')[-3]
 
     create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
-    quit()
+
 
 
 
@@ -184,7 +182,7 @@ def main():
                     print('No matching file found for', row['Datetime'])
 
                 dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, lat, lon, OUTPUT_site_dir, row['Datetime'])
-                quit()
+
 
 
 if __name__ == '__main__':
