@@ -9,7 +9,6 @@ from datetime import datetime
 from osgeo import gdal
 import pandas as pd
 import numpy as np
-import osr
 import os
 
 # tower coordinate dic.
@@ -64,51 +63,39 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
             dhr_b12 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
 
     # find the dhr_b02 pixel within the radius, center at the given lat, lon
-
-    # Create Spatial Reference object for WGS84 (used by lat/lon)
-    wgs84_sr = osr.SpatialReference()
-    wgs84_sr.ImportFromEPSG(4326)  # EPSG for WGS84
-
-    # Get geotransform and projection from the raster
     geotransform = dhr_b02.GetGeoTransform()
     projection = dhr_b02.GetProjection()
 
-    # Create Spatial Reference object for raster
-    raster_sr = osr.SpatialReference(wkt=projection)
+    # Create a coordinate transformation object
+    source_sr = gdal.osr.SpatialReference()
+    source_sr.ImportFromWkt(projection)
 
-    # Create coordinate transformation
-    coord_transform = osr.CoordinateTransformation(wgs84_sr, raster_sr)
+    target_sr = gdal.osr.SpatialReference()
+    target_sr.ImportFromEPSG(4326)  # EPSG code for WGS84
 
-    # Transform lat, lon to raster projection
+    coord_transform = gdal.osr.CoordinateTransformation(target_sr, source_sr)
+
+    # Transform lat, lon to the raster's coordinate system
     tower_utm_x, tower_utm_y, _ = coord_transform.TransformPoint(lon, lat)
 
-    # Get raster band
-    band = dhr_b02.GetRasterBand(1)
-
-    cols = band.XSize
-    rows = band.YSize
+    # Raster size
+    cols = dhr_b02.RasterXSize
+    rows = dhr_b02.RasterYSize
 
     # Generate grid of pixel coordinates
-    xOrigin = geotransform[0]
-    yOrigin = geotransform[3]
-    pixelWidth = geotransform[1]
-    pixelHeight = geotransform[5]
+    x_indices = np.arange(cols)
+    y_indices = np.arange(rows)
+    col_mesh, row_mesh = np.meshgrid(x_indices, y_indices)
 
-    UL_x = xOrigin
-    UL_y = yOrigin
-    LR_x = UL_x + cols * pixelWidth
-    LR_y = UL_y + rows * pixelHeight
+    # Convert meshgrid to geospatial coordinates
+    x_geo_mesh = geotransform[0] + col_mesh * geotransform[1] + row_mesh * geotransform[2]
+    y_geo_mesh = geotransform[3] + col_mesh * geotransform[4] + row_mesh * geotransform[5]
 
-    row_linspace = np.linspace(UL_y, LR_y, rows + 1)
-    col_linspace = np.linspace(UL_x, LR_x, cols + 1)
-    col_mesh, row_mesh = np.meshgrid(col_linspace, row_linspace)
+    # Calculate the distance from the tower for all pixels
+    distance_mesh = np.sqrt((x_geo_mesh - tower_utm_x) ** 2 + (y_geo_mesh - tower_utm_y) ** 2)
 
-    # Calculate the mask to tower center
-    Mask2TowerCentre = np.sqrt((col_mesh - tower_utm_x) ** 2 + (row_mesh - tower_utm_y) ** 2)
-
-    # Find index of footprint
-    IndexOfFootprint = np.where(Mask2TowerCentre <= radius)
-    print(IndexOfFootprint)
+    # Find pixels within the specified radius
+    pixels_within_radius = np.where(distance_mesh <= radius)
     quit()
 
 
