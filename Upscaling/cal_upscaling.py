@@ -7,7 +7,7 @@
 
 from datetime import datetime
 import pandas as pd
-import gdal
+from osgeo import gdal
 import os
 
 # tower coordinate dic.
