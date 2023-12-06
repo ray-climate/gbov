@@ -94,6 +94,9 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_
         if dhr_file.endswith('B12_UCL_dhr.jp2'):
             dhr_b12 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
 
+    dhr_b02_array = dhr_b02.ReadAsArray()
+    print(dhr_b02_array.shape)
+    quit()
     # find the dhr_b02 pixel within the radius, center at the given lat, lon
     geotransform = dhr_b02.GetGeoTransform()
     projection = dhr_b02.GetProjection()
