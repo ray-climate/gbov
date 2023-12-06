@@ -168,7 +168,7 @@ def main():
             if index == 0:
                 sentinel2_list = []
                 for file in os.listdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
-                    if os.path.isdir(os.path.join(sentinel2_dir, site_code, year_str)):
+                    if os.path.isdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
                         sentinel2_list.append(file)
                 print('Sentinel2 list: ', sentinel2_list)
             quit()
