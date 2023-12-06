@@ -121,7 +121,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_
     # Find pixels within the specified radius
     pixels_within_radius = np.where(distance_mesh <= radius)
     # get the last part of filename from sentinel2_dhr_dir
-    filename = sentinel2_dhr_dir.split('/')[-1]
+    filename = sentinel2_dhr_dir.split('/')[-3]
     print('filename: ', filename)
     quit()
 
