@@ -126,7 +126,7 @@ def upscale_to_CGLS(tower_lat, tower_lon, sentinel2_base_ref_values, upscaling_f
             # Ensure the indices are within the bounds of the global grid
             if 0 <= lat_idx < len(global_lat_linspace) and 0 <= lon_idx < len(global_lon_linspace):
                 CGLS_grid.append(np.array([global_lat_linspace[lat_idx], global_lon_linspace[lon_idx]]))
-                print('CGLS grid: ', global_lat_linspace[lat_idx], global_lon_linspace[lon_idx])
+                # print('CGLS grid: ', global_lat_linspace[lat_idx], global_lon_linspace[lon_idx])
 
     retrieval_CGLS_resolution = np.zeros((len(CGLS_grid)))
     #
@@ -353,7 +353,6 @@ def main():
                     for k in range(len(CGLS_grid)):
                         writer.writerow((CGLS_grid[k][0], CGLS_grid[k][1], corrected_dhr_CGLS_resolution[k], corrected_dhr_CGLS_resolution[k] * total_unc, corrected_bhr_CGLS_resolution[k], corrected_bhr_CGLS_resolution[k] * total_unc))
 
-                quit()
 
 
 if __name__ == '__main__':
