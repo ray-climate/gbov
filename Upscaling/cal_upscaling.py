@@ -308,37 +308,38 @@ def main():
 
         # read values in dhr_file
         dhr_data = pd.read_csv(dhr_file)
-        # iterate through each row in dhr_data
-        for index, row in dhr_data.iterrows():
-            # print(row['datetime'], row['dhr'])
+        bhr_data = pd.read_csv(bhr_file)
 
-            if index == 0:
+        # iterate through each row in dhr_data
+
+        for (index_dhr, row_dhr), (index_bhr, row_bhr) in zip(dhr_data.iterrows(), bhr_data.iterrows()):
+            if index_dhr == 0:
                 sentinel2_list = []
-                for file in os.listdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
-                    if os.path.isdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
-                        cloud_ratio = cal_cloud_covering_ratio(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0], file))
+                for file in os.listdir(os.path.join(sentinel2_dir, site_code, row_dhr['Datetime'].split('-')[0])):
+                    if os.path.isdir(os.path.join(sentinel2_dir, site_code, row_dhr['Datetime'].split('-')[0])):
+                        cloud_ratio = cal_cloud_covering_ratio(os.path.join(sentinel2_dir, site_code, row_dhr['Datetime'].split('-')[0], file))
                         print('Cloud ratio for %s: ' %file, cloud_ratio)
                         if cloud_ratio < cloud_ratio_threshold:
                             sentinel2_list.append(file)
 
-            if row['DHR'] > 0:
-                year_str = row['Datetime'].split('-')[0]
+            if (row_dhr['DHR'] > 0) & (row_bhr['BHR'] > 0):
+                year_str = row_dhr['Datetime'].split('-')[0]
                 sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, year_str)
 
                 # file in sentinel2_site_dir has YYYYMMDD after the second underscore, find the file with the date closest to the datetime in dhr_data
 
                 # Convert the date string to a datetime object
-                row_date = datetime.strptime(row['Datetime'].replace('-', ''), '%Y%m%d')
+                row_date = datetime.strptime(row_dhr['Datetime'].replace('-', ''), '%Y%m%d')
                 closest_file = find_closest_date_file(row_date, sentinel2_list)
 
                 if closest_file:
-                    print('Upscale datetime using Sentinel2 data: ', row['Datetime'],
+                    print('Upscale datetime using Sentinel2 data: ', row_dhr['Datetime'],
                           os.path.join(sentinel2_site_dir, closest_file))
                 else:
-                    print('No matching file found for', row['Datetime'])
+                    print('No matching file found for', row_dhr['Datetime'])
 
-                (CGLS_grid, corrected_dhr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row['DHR'], lat, lon, OUTPUT_site_dir, row['Datetime'])
-                (CGLS_grid, corrected_bhr_CGLS_resolution) = bhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row['BHR'], lat, lon, OUTPUT_site_dir, row['Datetime'])
+                (CGLS_grid, corrected_dhr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_dhr['DHR'], lat, lon, OUTPUT_site_dir, row_dhr['Datetime'])
+                (CGLS_grid, corrected_bhr_CGLS_resolution) = bhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_bhr['BHR'], lat, lon, OUTPUT_site_dir, row_bhr['Datetime'])
 
                 unc_1 = np.sqrt(2.) * 0.05 / np.sqrt(30.)
                 unc_2 = 0.1 + (random() - 0.5) * 0.1
