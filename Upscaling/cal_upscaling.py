@@ -184,7 +184,8 @@ def main():
                           os.path.join(sentinel2_site_dir, closest_file))
                 else:
                     print('No matching file found for', row['Datetime'])
-
+                print(row['Datetime'])
+                quit()
                 dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, lat, lon, OUTPUT_site_dir)
                 quit()
 
