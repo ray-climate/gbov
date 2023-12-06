@@ -73,7 +73,7 @@ def find_closest_date_file(target_date, directory):
 
     return closest_file
 
-def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_dir):
+def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_dir, upscaling_datetime):
 
     radius = np.tan(np.deg2rad(85.)) * (height_tower - height_canopy)
     print('radius: ', radius)
@@ -125,7 +125,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_
     print('filename: ', filename)
     quit()
 
-    create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb.png'))
+    create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
     quit()
 
 
@@ -184,9 +184,8 @@ def main():
                           os.path.join(sentinel2_site_dir, closest_file))
                 else:
                     print('No matching file found for', row['Datetime'])
-                print(row['Datetime'])
-                quit()
-                dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, lat, lon, OUTPUT_site_dir)
+
+                dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, lat, lon, OUTPUT_site_dir, row['Datetime'])
                 quit()
 
 
