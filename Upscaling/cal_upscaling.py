@@ -172,10 +172,8 @@ def main():
                 for file in os.listdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
                     if os.path.isdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
                         cloud_ratio = cal_cloud_covering_ratio(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0], file))
-
                         print('Cloud ratio for %s: ' %file, cloud_ratio)
                         if cloud_ratio < cloud_ratio_threshold:
-                            print('Sentinel2 list: ', sentinel2_list)
                             sentinel2_list.append(file)
 
             if row['DHR'] > 0:
