@@ -78,15 +78,24 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
     # Transform lat, lon to the raster's coordinate system
     tower_utm_x, tower_utm_y, _ = coord_transform.TransformPoint(lon, lat)
 
-    # Raster size
-    cols = dhr_b02.RasterXSize
-    rows = dhr_b02.RasterYSize
+    xOrigin = geotransform[0]
+    yOrigin = geotransform[3]
+    pixelWidth = geotransform[1]
+    pixelHeight = geotransform[5]
 
-    # Generate grid of pixel coordinates
-    x_indices = np.arange(cols)
-    y_indices = np.arange(rows)
+    UL_x = xOrigin
+    UL_y = yOrigin
+    LR_x = xOrigin + dhr_b02.RasterXSize * pixelWidth
+    LR_y = yOrigin + dhr_b02.RasterYSize * pixelHeight
+
+    x_indices = np.arange(UL_x, LR_x, dhr_b02.RasterXSize + 1)
+    y_indices = np.arange(UL_y, LR_y, dhr_b02.RasterYSize + 1)
+
     col_mesh, row_mesh = np.meshgrid(x_indices, y_indices)
 
+    print('col_mesh: ', col_mesh)
+    print('row_mesh: ', row_mesh)
+    quit()
     # Convert meshgrid to geospatial coordinates
     x_geo_mesh = geotransform[0] + col_mesh * geotransform[1] + row_mesh * geotransform[2]
     y_geo_mesh = geotransform[3] + col_mesh * geotransform[4] + row_mesh * geotransform[5]
