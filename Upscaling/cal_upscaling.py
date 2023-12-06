@@ -42,8 +42,11 @@ def find_closest_date_file(target_date, directory):
 
     return closest_file
 
-def dhr_correction(sentinel2_dir):
+def dhr_correction(sentinel2_dir, height_tower, height_canopy):
 
+    radius = np.tan(np.deg2rad(85.)) * (height_tower - height_canopy)
+    print('radius: ', radius)
+    quit()
     sentinel2_dhr_dir = os.path.join(sentinel2_dir, 'tile_0', 'albedo')
     for dhr_file in os.listdir(sentinel2_dhr_dir):
         if dhr_file.endswith('B02_UCL_bhr.jp2'):
@@ -95,8 +98,7 @@ def main():
         print('Site name, site code: ', site_name, site_code)
         height_tower, height_canopy = canopy_height[site_name][0], canopy_height[site_name][1]
         print('Tower height, canopy height: ', height_tower, height_canopy)
-        quit()
-        # read values in tocr_file
+
         # read values in dhr_file
         dhr_data = pd.read_csv(dhr_file)
         # iterate through each row in dhr_data
@@ -118,7 +120,7 @@ def main():
                 else:
                     print('No matching file found for', row['Datetime'])
 
-                dhr_correction(os.path.join(sentinel2_site_dir, closest_file))
+                dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy)
                 quit()
 
 
