@@ -271,6 +271,72 @@ def bhr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, l
 
     return CGLS_grid, corrected_bhr_CGLS_resolution
 
+def tocr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, lon, OUTPUT_dir, upscaling_datetime):
+
+    SW_coefficient = [-0.0049, 0.2688, 0.0362, 0.1501, 0.3045, 0.1644, 0.0356]
+
+    radius = np.tan(np.deg2rad(85.)) * (height_tower - height_canopy)
+    # print('radius: ', radius)
+
+    sentinel2_tocr_dir = os.path.join(sentinel2_dir, 'tile_0')
+    for tocr_file in os.listdir(sentinel2_tocr_dir):
+        if tocr_file.endswith('B02.tif'):
+            tocr_b02 = gdal.Open(os.path.join(sentinel2_tocr_dir, tocr_file))
+        if tocr_file.endswith('B03.tif'):
+            tocr_b03 = gdal.Open(os.path.join(sentinel2_tocr_dir, tocr_file))
+        if tocr_file.endswith('B04.tif'):
+            tocr_b04 = gdal.Open(os.path.join(sentinel2_tocr_dir, tocr_file))
+        if tocr_file.endswith('B8A.tif'):
+            tocr_b8A = gdal.Open(os.path.join(sentinel2_tocr_dir, tocr_file))
+        if tocr_file.endswith('B11.tif'):
+            tocr_b11 = gdal.Open(os.path.join(sentinel2_tocr_dir, tocr_file))
+        if tocr_file.endswith('B12.tif'):
+            tocr_b12 = gdal.Open(os.path.join(sentinel2_tocr_dir, tocr_file))
+
+    tocr_b02_array = tocr_b02.ReadAsArray()/1.e4
+    tocr_b03_array = tocr_b03.ReadAsArray()/1.e4
+    tocr_b04_array = tocr_b04.ReadAsArray()/1.e4
+    tocr_b8A_array = tocr_b8A.ReadAsArray()/1.e4
+    tocr_b11_array = tocr_b11.ReadAsArray()/1.e4
+    tocr_b12_array = tocr_b12.ReadAsArray()/1.e4
+
+    tocr_sw = SW_coefficient[0] + SW_coefficient[1] * tocr_b02_array + SW_coefficient [2] * tocr_b03_array + SW_coefficient[3] * tocr_b04_array + SW_coefficient[4] * tocr_b8A_array + SW_coefficient[5] * tocr_b11_array + SW_coefficient[6] * tocr_b12_array
+
+    # find the dhr_b02 pixel within the radius, center at the given lat, lon
+    geotransform = tocr_b02.GetGeoTransform()
+    projection = tocr_b02.GetProjection()
+
+    tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
+
+    xOrigin = geotransform[0]
+    yOrigin = geotransform[3]
+    pixelWidth = geotransform[1]
+    pixelHeight = geotransform[5]
+
+    UL_x = xOrigin
+    UL_y = yOrigin
+    LR_x = xOrigin + tocr_b02.RasterXSize * pixelWidth
+    LR_y = yOrigin + tocr_b02.RasterYSize * pixelHeight
+    # print('UL_x, UL_y, LR_x, LR_y: ', UL_x, UL_y, LR_x, LR_y)
+
+    x_indices = np.linspace(UL_x, LR_x, tocr_b02.RasterXSize + 1)
+    y_indices = np.linspace(UL_y, LR_y, tocr_b02.RasterYSize + 1)
+
+    col_mesh, row_mesh = np.meshgrid(x_indices, y_indices)
+    # print('tower_utm_x, tower_utm_y: ', tower_utm_x, tower_utm_y)
+    # Calculate the distance from the tower for all pixels
+    distance_mesh = np.sqrt((col_mesh - tower_utm_x) ** 2 + (row_mesh - tower_utm_y) ** 2)
+    # Find pixels within the specified radius
+    pixels_within_radius = np.where(distance_mesh <= radius)
+
+    tocr_sw_fov = tocr_sw[pixels_within_radius]
+
+    upscaling_factor = bhr_tower / np.nanmean(tocr_sw_fov[tocr_sw_fov > 0.])
+    print('upscaling factor: ', upscaling_factor)
+
+    (CGLS_grid, corrected_tocr_CGLS_resolution) = upscale_to_CGLS(lat, lon, tocr_sw, upscaling_factor, col_mesh, row_mesh)
+
+    return CGLS_grid, corrected_tocr_CGLS_resolution
 
 
 def main():
@@ -309,10 +375,11 @@ def main():
         # read values in dhr_file
         dhr_data = pd.read_csv(dhr_file)
         bhr_data = pd.read_csv(bhr_file)
+        tocr_data = pd.read_csv(tocr_file)
 
         # iterate through each row in dhr_data
+        for (index_dhr, row_dhr), (index_bhr, row_bhr), (index_tocr, row_tocr) in zip(dhr_data.iterrows(), bhr_data.iterrows(), tocr_data.iterrows()):
 
-        for (index_dhr, row_dhr), (index_bhr, row_bhr) in zip(dhr_data.iterrows(), bhr_data.iterrows()):
             if index_dhr == 0:
                 sentinel2_list = []
                 for file in os.listdir(os.path.join(sentinel2_dir, site_code, row_dhr['Datetime'].split('-')[0])):
@@ -352,6 +419,36 @@ def main():
                     writer.writerow(('Latitude', 'Longitude', 'DHR', 'DHR_unc', 'BHR', 'BHR_unc'))
                     for k in range(len(CGLS_grid)):
                         writer.writerow((CGLS_grid[k][0], CGLS_grid[k][1], corrected_dhr_CGLS_resolution[k], corrected_dhr_CGLS_resolution[k] * total_unc, corrected_bhr_CGLS_resolution[k], corrected_bhr_CGLS_resolution[k] * total_unc))
+
+            if (row_tocr['TOC_R'] > 0):
+
+                year_str = row_tocr['Datetime'].split('-')[0]
+                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, year_str)
+
+                # file in sentinel2_site_dir has YYYYMMDD after the second underscore, find the file with the date closest to the datetime in dhr_data
+
+                # Convert the date string to a datetime object
+                row_date = datetime.strptime(row_tocr['Datetime'].replace('-', ''), '%Y%m%d')
+                closest_file = find_closest_date_file(row_date, sentinel2_list)
+
+                if closest_file:
+                    print('Upscale datetime using Sentinel2 data: ', row_tocr['Datetime'],
+                        os.path.join(sentinel2_site_dir, closest_file))
+                else:
+                    print('No matching file found for', row_tocr['Datetime'])
+
+                (CGLS_grid, corrected_tocr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_tocr['TOC_R'], lat, lon, OUTPUT_site_dir, row_tocr['Datetime'])
+
+                unc_1 = np.sqrt(2.) * 0.05 / np.sqrt(30.)
+                unc_2 = 0.1 + (random() - 0.5) * 0.1
+
+                total_unc = unc_1 + unc_2
+
+                with open(OUTPUT_site_dir + '/GBOV_LP01_%s_001_%s%s%s_%s%s%s_001_UCL_V1.0.csv' % (site_name, row_tocr['Datetime'][0:4], row_tocr['Datetime'][5:7], row_tocr['Datetime'][8:10], row_tocr['Datetime'][0:4], row_tocr['Datetime'][5:7], row_tocr['Datetime'][8:10]), "w") as output:
+                    writer = csv.writer(output, lineterminator='\n')
+                    writer.writerow(('Latitude', 'Longitude', 'TOC_R', 'TOC_R_unc'))
+                    for k in range(len(CGLS_grid)):
+                        writer.writerow((CGLS_grid[k][0], CGLS_grid[k][1], corrected_tocr_CGLS_resolution[k], corrected_tocr_CGLS_resolution[k] * total_unc))
 
 
 
