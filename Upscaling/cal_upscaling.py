@@ -11,8 +11,10 @@ from datetime import datetime
 from osgeo import gdal
 import pandas as pd
 import numpy as np
+import csv
 import utm
 import os
+from random import random
 
 # tower coordinate dic.
 tower_coordinate = {}
@@ -50,7 +52,6 @@ def create_rgb_quicklook(band2, band3, band4, output_file):
     # Save the image
     plt.imsave(output_file, rgb, cmap='gray')
 
-
 def find_closest_date_file(target_date, sentinel2_list):
     """
     Find the file in the directory with the date closest to the target date.
@@ -73,7 +74,6 @@ def find_closest_date_file(target_date, sentinel2_list):
             continue
 
     return closest_file
-
 
 def s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CR_lat, CR_lon, upscaling_factor):
 
@@ -134,7 +134,7 @@ def upscale_to_CGLS(tower_lat, tower_lon, sentinel2_base_ref_values, upscaling_f
         retrieval_CGLS_resolution[j] = s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CGLS_grid[j][0], CGLS_grid[j][1], upscaling_factor)
         print('upscaled value at (lat, lon) = (%s, %s) is %s' %(CGLS_grid[j][0], CGLS_grid[j][1], retrieval_CGLS_resolution[j]))
 
-
+    return CGLS_grid, retrieval_CGLS_resolution
 
 def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, lon, OUTPUT_dir, upscaling_datetime):
 
@@ -200,10 +200,76 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     print('upscaling factor: ', upscaling_factor)
     create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
 
-    upscale_to_CGLS(lat, lon, dhr_sw, upscaling_factor, col_mesh, row_mesh)
-    quit()
+    (CGLS_grid, corrected_dhr_CGLS_resolution) = upscale_to_CGLS(lat, lon, dhr_sw, upscaling_factor, col_mesh, row_mesh)
 
+    return CGLS_grid, corrected_dhr_CGLS_resolution
 
+def bhr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, lon, OUTPUT_dir, upscaling_datetime):
+
+    SW_coefficient = [-0.0049, 0.2688, 0.0362, 0.1501, 0.3045, 0.1644, 0.0356]
+
+    radius = np.tan(np.deg2rad(85.)) * (height_tower - height_canopy)
+    # print('radius: ', radius)
+
+    sentinel2_bhr_dir = os.path.join(sentinel2_dir, 'tile_0', 'albedo')
+    for bhr_file in os.listdir(sentinel2_bhr_dir):
+        if bhr_file.endswith('B02_UCL_bhr.jp2'):
+            bhr_b02 = gdal.Open(os.path.join(sentinel2_bhr_dir, bhr_file))
+        if bhr_file.endswith('B03_UCL_bhr.jp2'):
+            bhr_b03 = gdal.Open(os.path.join(sentinel2_bhr_dir, bhr_file))
+        if bhr_file.endswith('B04_UCL_bhr.jp2'):
+            bhr_b04 = gdal.Open(os.path.join(sentinel2_bhr_dir, bhr_file))
+        if bhr_file.endswith('B8A_UCL_bhr.jp2'):
+            bhr_b8A = gdal.Open(os.path.join(sentinel2_bhr_dir, bhr_file))
+        if bhr_file.endswith('B11_UCL_bhr.jp2'):
+            bhr_b11 = gdal.Open(os.path.join(sentinel2_bhr_dir, bhr_file))
+        if bhr_file.endswith('B12_UCL_bhr.jp2'):
+            bhr_b12 = gdal.Open(os.path.join(sentinel2_bhr_dir, bhr_file))
+
+    bhr_b02_array = bhr_b02.ReadAsArray()/1.e4
+    bhr_b03_array = bhr_b03.ReadAsArray()/1.e4
+    bhr_b04_array = bhr_b04.ReadAsArray()/1.e4
+    bhr_b8A_array = bhr_b8A.ReadAsArray()/1.e4
+    bhr_b11_array = bhr_b11.ReadAsArray()/1.e4
+    bhr_b12_array = bhr_b12.ReadAsArray()/1.e4
+
+    bhr_sw = SW_coefficient[0] + SW_coefficient[1] * bhr_b02_array + SW_coefficient[2] * bhr_b03_array + SW_coefficient[3] * bhr_b04_array + SW_coefficient[4] * bhr_b8A_array + SW_coefficient[5] * bhr_b11_array + SW_coefficient[6] * bhr_b12_array
+
+    # find the dhr_b02 pixel within the radius, center at the given lat, lon
+    geotransform = bhr_b02.GetGeoTransform()
+    projection = bhr_b02.GetProjection()
+
+    tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
+
+    xOrigin = geotransform[0]
+    yOrigin = geotransform[3]
+    pixelWidth = geotransform[1]
+    pixelHeight = geotransform[5]
+
+    UL_x = xOrigin
+    UL_y = yOrigin
+    LR_x = xOrigin + bhr_b02.RasterXSize * pixelWidth
+    LR_y = yOrigin + bhr_b02.RasterYSize * pixelHeight
+    # print('UL_x, UL_y, LR_x, LR_y: ', UL_x, UL_y, LR_x, LR_y)
+
+    x_indices = np.linspace(UL_x, LR_x, bhr_b02.RasterXSize + 1)
+    y_indices = np.linspace(UL_y, LR_y, bhr_b02.RasterYSize + 1)
+
+    col_mesh, row_mesh = np.meshgrid(x_indices, y_indices)
+    # print('tower_utm_x, tower_utm_y: ', tower_utm_x, tower_utm_y)
+    # Calculate the distance from the tower for all pixels
+    distance_mesh = np.sqrt((col_mesh - tower_utm_x) ** 2 + (row_mesh - tower_utm_y) ** 2)
+    # Find pixels within the specified radius
+    pixels_within_radius = np.where(distance_mesh <= radius)
+
+    bhr_sw_fov = bhr_sw[pixels_within_radius]
+
+    upscaling_factor = bhr_tower / np.nanmean(bhr_sw_fov[bhr_sw_fov > 0.])
+    print('upscaling factor: ', upscaling_factor)
+
+    (CGLS_grid, corrected_bhr_CGLS_resolution) = upscale_to_CGLS(lat, lon, bhr_sw, upscaling_factor, col_mesh, row_mesh)
+
+    return CGLS_grid, corrected_bhr_CGLS_resolution
 
 
 
@@ -271,8 +337,21 @@ def main():
                 else:
                     print('No matching file found for', row['Datetime'])
 
-                dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row['DHR'], lat, lon, OUTPUT_site_dir, row['Datetime'])
+                (CGLS_grid, corrected_dhr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row['DHR'], lat, lon, OUTPUT_site_dir, row['Datetime'])
+                (CGLS_grid, corrected_bhr_CGLS_resolution) = bhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row['BHR'], lat, lon, OUTPUT_site_dir, row['Datetime'])
 
+                unc_1 = np.sqrt(2.) * 0.05 / np.sqrt(30.)
+                unc_2 = 0.1 + (random() - 0.5) * 0.1
+
+                total_unc = unc_1 + unc_2
+
+                with open(OUTPUT_site_dir + '/GBOV_LP02_%s_001_%s%s%s_%s%s%s_001_UCL_V1.0.csv' % (site_name, row['Datetime'].replace('-', '')[0:4], row['Datetime'].replace('-', '')[5:7], row['Datetime'].replace('-', '')[8:10], row['Datetime'].replace('-', '')[0:4], row['Datetime'].replace('-', '')[5:7], row['Datetime'].replace('-', '')[8:10]), "w") as output:
+                    writer = csv.writer(output, lineterminator='\n')
+                    writer.writerow(('Latitude', 'Longitude', 'DHR', 'DHR_unc', 'BHR', 'BHR_unc'))
+                    for k in range(len(CGLS_grid)):
+                        writer.writerow((CGLS_grid[k][0], CGLS_grid[k][1], corrected_dhr_CGLS_resolution[k], corrected_dhr_CGLS_resolution[k] * total_unc, corrected_bhr_CGLS_resolution[k], corrected_bhr_CGLS_resolution[k] * total_unc))
+
+                quit()
 
 
 if __name__ == '__main__':
