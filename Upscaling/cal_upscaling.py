@@ -74,7 +74,9 @@ def find_closest_date_file(target_date, sentinel2_list):
 
     return closest_file
 
-def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_dir, upscaling_datetime):
+def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, lon, OUTPUT_dir, upscaling_datetime):
+
+    SW_coefficient = [-0.0049, 0.2688, 0.0362, 0.1501, 0.3045, 0.1644, 0.0356]
 
     radius = np.tan(np.deg2rad(85.)) * (height_tower - height_canopy)
     # print('radius: ', radius)
@@ -94,9 +96,15 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_
         if dhr_file.endswith('B12_UCL_dhr.jp2'):
             dhr_b12 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
 
-    dhr_b02_array = dhr_b02.ReadAsArray()
-    print(dhr_b02_array.shape)
-    quit()
+    dhr_b02_array = dhr_b02.ReadAsArray()/1.e4
+    dhr_b03_array = dhr_b03.ReadAsArray()/1.e4
+    dhr_b04_array = dhr_b04.ReadAsArray()/1.e4
+    dhr_b8A_array = dhr_b8A.ReadAsArray()/1.e4
+    dhr_b11_array = dhr_b11.ReadAsArray()/1.e4
+    dhr_b12_array = dhr_b12.ReadAsArray()/1.e4
+
+    dhr_sw = SW_coefficient[0] + SW_coefficient[1] * dhr_b02_array + SW_coefficient[2] * dhr_b03_array + SW_coefficient[3] * dhr_b04_array + SW_coefficient[4] * dhr_b8A_array + SW_coefficient[5] * dhr_b11_array + SW_coefficient[6] * dhr_b12_array
+
     # find the dhr_b02 pixel within the radius, center at the given lat, lon
     geotransform = dhr_b02.GetGeoTransform()
     projection = dhr_b02.GetProjection()
@@ -124,8 +132,11 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_
     # Find pixels within the specified radius
     pixels_within_radius = np.where(distance_mesh <= radius)
 
-    create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
+    dhr_sw_fov = dhr_sw[pixels_within_radius]
 
+    upscaling_factor = dhr_tower / np.nanmean(dhr_sw_fov[dhr_sw_fov > 0.])
+    print('upscaling factor: ', upscaling_factor)
+    create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
 
 
 
@@ -195,7 +206,7 @@ def main():
                 else:
                     print('No matching file found for', row['Datetime'])
 
-                dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, lat, lon, OUTPUT_site_dir, row['Datetime'])
+                dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row['DHR'], lat, lon, OUTPUT_site_dir, row['Datetime'])
 
 
 
