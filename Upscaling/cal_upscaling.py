@@ -323,6 +323,8 @@ def main():
                             sentinel2_list.append(file)
 
             if (row_dhr['DHR'] > 0) & (row_bhr['BHR'] > 0):
+                print(row_dhr['Datetime'])
+                quit()
                 year_str = row_dhr['Datetime'].split('-')[0]
                 sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, year_str)
 
