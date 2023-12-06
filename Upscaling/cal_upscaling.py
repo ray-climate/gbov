@@ -6,9 +6,10 @@
 # @Time:        05/12/2023 22:35
 
 from datetime import datetime
-import pandas as pd
 from osgeo import gdal
+import pandas as pd
 import numpy as np
+import osr
 import os
 
 # tower coordinate dic.
@@ -42,11 +43,11 @@ def find_closest_date_file(target_date, directory):
 
     return closest_file
 
-def dhr_correction(sentinel2_dir, height_tower, height_canopy):
+def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
 
     radius = np.tan(np.deg2rad(85.)) * (height_tower - height_canopy)
     print('radius: ', radius)
-    quit()
+
     sentinel2_dhr_dir = os.path.join(sentinel2_dir, 'tile_0', 'albedo')
     for dhr_file in os.listdir(sentinel2_dhr_dir):
         if dhr_file.endswith('B02_UCL_bhr.jp2'):
@@ -62,17 +63,54 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy):
         if dhr_file.endswith('B12_UCL_bhr.jp2'):
             dhr_b12 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
 
-    array = dhr_b02.ReadAsArray()
-    print(np.mean(array[array > 0]))
-    quit()
-    cols = dhr_b02.RasterXSize
-    rows = dhr_b02.RasterYSize
+    # find the dhr_b02 pixel within the radius, center at the given lat, lon
 
-    transform = dhr_b02.GetGeoTransform()
-    xOrigin = transform[0]
-    yOrigin = transform[3]
-    pixelWidth = transform[1]
-    pixelHeight = -transform[5]
+    # Create Spatial Reference object for WGS84 (used by lat/lon)
+    wgs84_sr = osr.SpatialReference()
+    wgs84_sr.ImportFromEPSG(4326)  # EPSG for WGS84
+
+    # Get geotransform and projection from the raster
+    geotransform = dhr_b02.GetGeoTransform()
+    projection = dhr_b02.GetProjection()
+
+    # Create Spatial Reference object for raster
+    raster_sr = osr.SpatialReference(wkt=projection)
+
+    # Create coordinate transformation
+    coord_transform = osr.CoordinateTransformation(wgs84_sr, raster_sr)
+
+    # Transform lat, lon to raster projection
+    tower_utm_x, tower_utm_y, _ = coord_transform.TransformPoint(lon, lat)
+
+    # Get raster band
+    band = dhr_b02.GetRasterBand(1)
+
+    cols = band.XSize
+    rows = band.YSize
+
+    # Generate grid of pixel coordinates
+    xOrigin = geotransform[0]
+    yOrigin = geotransform[3]
+    pixelWidth = geotransform[1]
+    pixelHeight = geotransform[5]
+
+    UL_x = xOrigin
+    UL_y = yOrigin
+    LR_x = UL_x + cols * pixelWidth
+    LR_y = UL_y + rows * pixelHeight
+
+    row_linspace = np.linspace(UL_y, LR_y, rows + 1)
+    col_linspace = np.linspace(UL_x, LR_x, cols + 1)
+    col_mesh, row_mesh = np.meshgrid(col_linspace, row_linspace)
+
+    # Calculate the mask to tower center
+    Mask2TowerCentre = np.sqrt((col_mesh - tower_utm_x) ** 2 + (row_mesh - tower_utm_y) ** 2)
+
+    # Find index of footprint
+    IndexOfFootprint = np.where(Mask2TowerCentre <= radius)
+    print(IndexOfFootprint)
+    quit()
+
 
 
 def main():
@@ -96,6 +134,7 @@ def main():
         site_name = tower_file.split('_')[2]
         site_code = tower_coordinate[site_name][2]
         print('Site name, site code: ', site_name, site_code)
+        lat, lon = tower_coordinate[site_name][0], tower_coordinate[site_name][1]
         height_tower, height_canopy = canopy_height[site_name][0], canopy_height[site_name][1]
         print('Tower height, canopy height: ', height_tower, height_canopy)
 
@@ -120,7 +159,7 @@ def main():
                 else:
                     print('No matching file found for', row['Datetime'])
 
-                dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy)
+                dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, lat, lon)
                 quit()
 
 
