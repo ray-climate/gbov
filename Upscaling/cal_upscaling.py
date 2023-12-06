@@ -74,7 +74,37 @@ def find_closest_date_file(target_date, sentinel2_list):
 
     return closest_file
 
-def upscale_to_CGLS(tower_lat, tower_lon, sentinel2_base_ref_values, upscaling_factor):
+
+def s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CR_lat, CR_lon, upscaling_factor):
+
+    CGLS_resolution = 1. / 112.
+    # print("Calculating upscaled coarse-resolution value at (%s, %s)"%(CR_lat, CR_lon))
+
+    UpperBoundaryLat = CR_lat + CGLS_resolution / 2.
+    LowerBoundaryLat = CR_lat - CGLS_resolution / 2.
+    LeftBoundaryLon = CR_lon - CGLS_resolution / 2.
+    RightBoundaryLon = CR_lon + CGLS_resolution / 2.
+
+    ULBoundaryUTM = utm.from_latlon(UpperBoundaryLat, LeftBoundaryLon)
+    LRBoundaryUTM = utm.from_latlon(LowerBoundaryLat, RightBoundaryLon)
+
+    UpperBoundaryUTM = ULBoundaryUTM[1]
+    LeftBoundaryUTM = ULBoundaryUTM[0]
+    LowerBoundaryUTM = LRBoundaryUTM[1]
+    RightBoundaryUTM = LRBoundaryUTM[0]
+
+    IndexOfAggregation = np.where(
+        (utm_x_mesh > LeftBoundaryUTM) & (utm_x_mesh < RightBoundaryUTM) & (utm_y_mesh < UpperBoundaryUTM) & (
+                    utm_y_mesh > LowerBoundaryUTM))
+    # print("Aggregation boundary is between UTM_x (%s, %s), UTM_y (%s, %s)"%(LeftBoundaryUTM, RightBoundaryUTM, UpperBoundaryUTM, LowerBoundaryUTM))
+
+    AggregationValues = sentinel2_base_ref_values[IndexOfAggregation]
+
+    UpscaledValue = np.nanmean(AggregationValues[(AggregationValues > 0) & (AggregationValues < 1.5)]) * upscaling_factor
+
+    return UpscaledValue
+
+def upscale_to_CGLS(tower_lat, tower_lon, sentinel2_base_ref_values, upscaling_factor, utm_x_mesh, utm_y_mesh):
 
     # Constants for CGLS grid resolution
     CGLS_resolution = 1. / 112.
@@ -98,11 +128,11 @@ def upscale_to_CGLS(tower_lat, tower_lon, sentinel2_base_ref_values, upscaling_f
                 CGLS_grid.append(np.array([global_lat_linspace[lat_idx], global_lon_linspace[lon_idx]]))
                 print('CGLS grid: ', global_lat_linspace[lat_idx], global_lon_linspace[lon_idx])
 
-    # retrieval_CGLS_resolution = np.zeros((len(CGLS_grid)))
+    retrieval_CGLS_resolution = np.zeros((len(CGLS_grid)))
     #
-    # for j in range(len(CGLS_grid)):
-    #     retrieval_CGLS_resolution[j] = calUpscaledTocR(sentinel2_base_ref_values, col_mesh, row_mesh, CGLS_grid[j][0], CGLS_grid[j][1], upscaling_factor, CGLS_resolution)
-
+    for j in range(len(CGLS_grid)):
+        retrieval_CGLS_resolution[j] = s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CGLS_grid[j][0], CGLS_grid[j][1], upscaling_factor)
+        print('upscaled value at (lat, lon) = (%s, %s) is %s' %(CGLS_grid[j][0], CGLS_grid[j][1], retrieval_CGLS_resolution[j]))
 
 
 
@@ -170,7 +200,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     print('upscaling factor: ', upscaling_factor)
     create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
 
-    upscale_to_CGLS(lat, lon, dhr_sw, upscaling_factor)
+    upscale_to_CGLS(lat, lon, dhr_sw, upscaling_factor, col_mesh, row_mesh)
     quit()
 
 
