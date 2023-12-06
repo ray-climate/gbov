@@ -91,7 +91,8 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
 
     x_indices = np.arange(UL_x, LR_x, dhr_b02.RasterXSize + 1)
     y_indices = np.arange(UL_y, LR_y, dhr_b02.RasterYSize + 1)
-
+    print('x_indices: ', x_indices)
+    print('y_indices: ', y_indices)
     col_mesh, row_mesh = np.meshgrid(x_indices, y_indices)
 
     print('col_mesh: ', col_mesh)
