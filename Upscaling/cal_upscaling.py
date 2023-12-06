@@ -54,7 +54,9 @@ def dhr_correction(sentinel2_dir):
             dhr_b11 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
         if dhr_file.endswith('B12_UCL_bhr.jp2'):
             dhr_b12 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
-    print(np.mean(dhr_b02.ReadAsArray()))
+
+    array = dhr_b02.ReadAsArray()
+    print(np.mean(array[array > 0]))
     quit()
     cols = dhr_b02.RasterXSize
     rows = dhr_b02.RasterYSize
