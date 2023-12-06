@@ -23,25 +23,31 @@ canopy_height['Brasschaat'] = [40., 21., 'BRAS']
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
 def create_rgb_quicklook(band2, band3, band4, output_file):
-
     def normalize(array):
-        array_min, array_max = array.min(), array.max()
-        return ((array - array_min)/(array_max - array_min))
-
-    band4[band4 < 0] = 0
-    band3[band3 < 0] = 0
-    band2[band2 < 0] = 0
+        # Replace negative values with NaN to handle separately
+        array = np.where(array < 0, np.nan, array)
+        array_min, array_max = np.nanmin(array), np.nanmax(array)
+        # Normalize the array, ignoring NaNs
+        return (array - array_min) / (array_max - array_min)
 
     # Normalize the bands
     band_red = normalize(band4)
     band_green = normalize(band3)
     band_blue = normalize(band2)
 
-    # Stack bands
+    # Create an RGB array
     rgb = np.dstack((band_red, band_green, band_blue))
 
+    # Replace NaNs (originally negative values) with grey
+    nan_mask = np.isnan(rgb)
+    rgb[nan_mask] = 0.5  # Set grey value (0.5 in normalized scale)
+
+    # Adjust brightness
+    brightness_factor = 1.5  # Adjust this factor to control brightness
+    rgb = np.clip(rgb * brightness_factor, 0, 1)
+
     # Save the image
-    plt.imsave(output_file, rgb)
+    plt.imsave(output_file, rgb, cmap='gray')
 
 
 def find_closest_date_file(target_date, directory):
