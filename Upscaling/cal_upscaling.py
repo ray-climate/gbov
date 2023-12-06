@@ -74,6 +74,38 @@ def find_closest_date_file(target_date, sentinel2_list):
 
     return closest_file
 
+def upscale_to_CGLS(tower_lat, tower_lon, sentinel2_base_ref_values, upscaling_factor):
+
+    # Constants for CGLS grid resolution
+    CGLS_resolution = 1. / 112.
+
+    # Define global CGLS grid
+    global_lon_linspace = np.arange(-180., 180. + CGLS_resolution, CGLS_resolution)
+    global_lat_linspace = np.arange(80., -64. - CGLS_resolution, -CGLS_resolution)
+
+    # Find the closest index in global grid to the tower coordinates
+    tower_index_lat = np.argmin((global_lat_linspace - tower_lat) ** 2)
+    tower_index_lon = np.argmin((global_lon_linspace - tower_lon) ** 2)
+
+    # Define 3km * 3km CGLS grid around the tower
+    CGLS_grid = []
+    for i in range(-1, 2):
+        for j in range(-1, 2):
+            lat_idx = tower_index_lat + i
+            lon_idx = tower_index_lon + j
+            # Ensure the indices are within the bounds of the global grid
+            if 0 <= lat_idx < len(global_lat_linspace) and 0 <= lon_idx < len(global_lon_linspace):
+                CGLS_grid.append(np.array([global_lat_linspace[lat_idx], global_lon_linspace[lon_idx]]))
+                print('CGLS grid: ', global_lat_linspace[lat_idx], global_lon_linspace[lon_idx])
+
+    # retrieval_CGLS_resolution = np.zeros((len(CGLS_grid)))
+    #
+    # for j in range(len(CGLS_grid)):
+    #     retrieval_CGLS_resolution[j] = calUpscaledTocR(sentinel2_base_ref_values, col_mesh, row_mesh, CGLS_grid[j][0], CGLS_grid[j][1], upscaling_factor, CGLS_resolution)
+
+
+
+
 def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, lon, OUTPUT_dir, upscaling_datetime):
 
     SW_coefficient = [-0.0049, 0.2688, 0.0362, 0.1501, 0.3045, 0.1644, 0.0356]
@@ -137,6 +169,9 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     upscaling_factor = dhr_tower / np.nanmean(dhr_sw_fov[dhr_sw_fov > 0.])
     print('upscaling factor: ', upscaling_factor)
     create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
+
+    upscale_to_CGLS(lat, lon, dhr_sw, upscaling_factor)
+    quit()
 
 
 
