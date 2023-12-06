@@ -9,6 +9,7 @@ from datetime import datetime
 from osgeo import gdal
 import pandas as pd
 import numpy as np
+import utm
 import os
 
 # tower coordinate dic.
@@ -66,17 +67,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
     geotransform = dhr_b02.GetGeoTransform()
     projection = dhr_b02.GetProjection()
 
-    # Create a coordinate transformation object
-    source_sr = gdal.osr.SpatialReference()
-    source_sr.ImportFromWkt(projection)
-
-    target_sr = gdal.osr.SpatialReference()
-    target_sr.ImportFromEPSG(4326)  # EPSG code for WGS84
-
-    coord_transform = gdal.osr.CoordinateTransformation(target_sr, source_sr)
-
-    # Transform lat, lon to the raster's coordinate system
-    tower_utm_x, tower_utm_y, _ = coord_transform.TransformPoint(lon, lat)
+    tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
 
     xOrigin = geotransform[0]
     yOrigin = geotransform[3]
