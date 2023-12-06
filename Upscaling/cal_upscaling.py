@@ -76,7 +76,7 @@ def find_closest_date_file(target_date, directory):
 def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_dir, upscaling_datetime):
 
     radius = np.tan(np.deg2rad(85.)) * (height_tower - height_canopy)
-    print('radius: ', radius)
+    # print('radius: ', radius)
 
     sentinel2_dhr_dir = os.path.join(sentinel2_dir, 'tile_0', 'albedo')
     for dhr_file in os.listdir(sentinel2_dhr_dir):
@@ -108,16 +108,15 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_
     UL_y = yOrigin
     LR_x = xOrigin + dhr_b02.RasterXSize * pixelWidth
     LR_y = yOrigin + dhr_b02.RasterYSize * pixelHeight
-    print('UL_x, UL_y, LR_x, LR_y: ', UL_x, UL_y, LR_x, LR_y)
+    # print('UL_x, UL_y, LR_x, LR_y: ', UL_x, UL_y, LR_x, LR_y)
 
     x_indices = np.linspace(UL_x, LR_x, dhr_b02.RasterXSize + 1)
     y_indices = np.linspace(UL_y, LR_y, dhr_b02.RasterYSize + 1)
 
     col_mesh, row_mesh = np.meshgrid(x_indices, y_indices)
-    print('tower_utm_x, tower_utm_y: ', tower_utm_x, tower_utm_y)
+    # print('tower_utm_x, tower_utm_y: ', tower_utm_x, tower_utm_y)
     # Calculate the distance from the tower for all pixels
     distance_mesh = np.sqrt((col_mesh - tower_utm_x) ** 2 + (row_mesh - tower_utm_y) ** 2)
-    print('distance_mesh: ', distance_mesh)
     # Find pixels within the specified radius
     pixels_within_radius = np.where(distance_mesh <= radius)
 
@@ -165,6 +164,15 @@ def main():
         # iterate through each row in dhr_data
         for index, row in dhr_data.iterrows():
             # print(row['datetime'], row['dhr'])
+
+            if index == 0:
+                sentinel2_list = []
+                for file in os.listdir(os.path.join(sentinel2_dir, site_code, row['Datetime'].split('-')[0])):
+                    if os.path.isdir(os.path.join(sentinel2_dir, file)):
+                        sentinel2_list.append(file)
+                print('Sentinel2 list: ', sentinel2_list)
+            quit()
+
             if row['DHR'] > 0:
                 year_str = row['Datetime'].split('-')[0]
                 sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, year_str)
