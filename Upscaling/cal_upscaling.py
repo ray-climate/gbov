@@ -43,8 +43,8 @@ def dhr_correction(sentinel2_dir):
     for dhr_file in os.listdir(sentinel2_dhr_dir):
         if dhr_file.endswith('B02_UCL_bhr.jp2'):
             dhr_b02 = gdal.Open(os.path.join(sentinel2_dhr_dir, dhr_file))
-
-
+            dhr_b02_array = dhr_b02.ReadAsArray()
+            print(dhr_b02_array.shape)
 def main():
 
     tower_retrieval_dir = '../ReferenceMeasurements/OUTPUT_dhr_bhr_tocr'
