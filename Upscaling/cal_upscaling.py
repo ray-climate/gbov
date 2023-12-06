@@ -120,6 +120,11 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon, OUTPUT_
     print('distance_mesh: ', distance_mesh)
     # Find pixels within the specified radius
     pixels_within_radius = np.where(distance_mesh <= radius)
+    # get the last part of filename from sentinel2_dhr_dir
+    filename = sentinel2_dhr_dir.split('/')[-1]
+    print('filename: ', filename)
+    quit()
+
     create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb.png'))
     quit()
 
@@ -143,9 +148,6 @@ def main():
 
     for tower_file in upscale_filelist:
 
-        OUTPUT_site_dir = os.path.join(OUTPUT_dir, tower_file)
-        os.makedirs(OUTPUT_site_dir, exist_ok=True)
-
         dhr_file = os.path.join(tower_retrieval_dir, tower_file + '_DHR.csv')
         bhr_file = os.path.join(tower_retrieval_dir, tower_file + '_BHR.csv')
         tocr_file = os.path.join(tower_retrieval_dir, tower_file + '_TOC_R.csv')
@@ -154,6 +156,10 @@ def main():
         site_name = tower_file.split('_')[2]
         site_code = tower_coordinate[site_name][2]
         print('Site name, site code: ', site_name, site_code)
+
+        OUTPUT_site_dir = os.path.join(OUTPUT_dir, site_name)
+        os.makedirs(OUTPUT_site_dir, exist_ok=True)
+
         lat, lon = tower_coordinate[site_name][0], tower_coordinate[site_name][1]
         height_tower, height_canopy = canopy_height[site_name][0], canopy_height[site_name][1]
         print('Tower height, canopy height: ', height_tower, height_canopy)
