@@ -323,8 +323,7 @@ def main():
                             sentinel2_list.append(file)
 
             if (row_dhr['DHR'] > 0) & (row_bhr['BHR'] > 0):
-                print(row_dhr['Datetime'])
-                quit()
+
                 year_str = row_dhr['Datetime'].split('-')[0]
                 sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, year_str)
 
@@ -348,7 +347,7 @@ def main():
 
                 total_unc = unc_1 + unc_2
 
-                with open(OUTPUT_site_dir + '/GBOV_LP02_%s_001_%s%s%s_%s%s%s_001_UCL_V1.0.csv' % (site_name, row_dhr['Datetime'].replace('-', '')[0:4], row_dhr['Datetime'].replace('-', '')[5:7], row_dhr['Datetime'].replace('-', '')[8:10], row_dhr['Datetime'].replace('-', '')[0:4], row_dhr['Datetime'].replace('-', '')[5:7], row_dhr['Datetime'].replace('-', '')[8:10]), "w") as output:
+                with open(OUTPUT_site_dir + '/GBOV_LP02_%s_001_%s%s%s_%s%s%s_001_UCL_V1.0.csv' % (site_name, row_dhr['Datetime'][0:4], row_dhr['Datetime'][5:7], row_dhr['Datetime'][8:10], row_dhr['Datetime'][0:4], row_dhr['Datetime'][5:7], row_dhr['Datetime'][8:10]), "w") as output:
                     writer = csv.writer(output, lineterminator='\n')
                     writer.writerow(('Latitude', 'Longitude', 'DHR', 'DHR_unc', 'BHR', 'BHR_unc'))
                     for k in range(len(CGLS_grid)):
