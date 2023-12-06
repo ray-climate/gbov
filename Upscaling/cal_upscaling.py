@@ -93,7 +93,7 @@ def main():
         site_name = tower_file.split('_')[2]
         site_code = tower_coordinate[site_name][2]
         print('Site name, site code: ', site_name, site_code)
-        height_tower, height_canopy = canopy_height[site_name]
+        height_tower, height_canopy = canopy_height[site_name][0], canopy_height[site_name][1]
         print('Tower height, canopy height: ', height_tower, height_canopy)
         quit()
         # read values in tocr_file
