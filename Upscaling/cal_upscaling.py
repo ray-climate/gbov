@@ -93,7 +93,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
     y_indices = np.linspace(UL_y, LR_y, dhr_b02.RasterYSize + 1)
 
     col_mesh, row_mesh = np.meshgrid(x_indices, y_indices)
-
+    print('tower_utm_x, tower_utm_y: ', tower_utm_x, tower_utm_y)
     # Calculate the distance from the tower for all pixels
     distance_mesh = np.sqrt((col_mesh - tower_utm_x) ** 2 + (row_mesh - tower_utm_y) ** 2)
     print('distance_mesh: ', distance_mesh)
