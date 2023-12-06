@@ -91,19 +91,11 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, lat, lon):
 
     x_indices = np.linspace(UL_x, LR_x, dhr_b02.RasterXSize + 1)
     y_indices = np.linspace(UL_y, LR_y, dhr_b02.RasterYSize + 1)
-    print('x_indices: ', x_indices)
-    print('y_indices: ', y_indices)
+
     col_mesh, row_mesh = np.meshgrid(x_indices, y_indices)
 
-    print('col_mesh: ', col_mesh)
-    print('row_mesh: ', row_mesh)
-    quit()
-    # Convert meshgrid to geospatial coordinates
-    x_geo_mesh = geotransform[0] + col_mesh * geotransform[1] + row_mesh * geotransform[2]
-    y_geo_mesh = geotransform[3] + col_mesh * geotransform[4] + row_mesh * geotransform[5]
-
     # Calculate the distance from the tower for all pixels
-    distance_mesh = np.sqrt((x_geo_mesh - tower_utm_x) ** 2 + (y_geo_mesh - tower_utm_y) ** 2)
+    distance_mesh = np.sqrt((col_mesh - tower_utm_x) ** 2 + (row_mesh - tower_utm_y) ** 2)
     print('distance_mesh: ', distance_mesh)
     # Find pixels within the specified radius
     pixels_within_radius = np.where(distance_mesh <= radius)
