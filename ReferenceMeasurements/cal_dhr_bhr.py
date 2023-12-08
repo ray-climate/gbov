@@ -48,7 +48,7 @@ def cal_tower_dhr_bhr(data, start_datetime, nominal_datetime, end_datetime, lati
     print('filter datetime', data.shape[0])
 
     if data.shape[0] == 0:
-        return -9999
+        return -np.nan
 
     # data filtering (solar zenith angle)
     data = data[data['sza'] < szaMax]
@@ -180,7 +180,7 @@ def cal_tower_tocr(data, start_datetime, nominal_datetime, end_datetime, latitud
     print('filter datetime', data.shape[0])
 
     if data.shape[0] == 0:
-        return -9999
+        return -np.nan
 
     # data filtering (solar zenith angle)
     data = data[data['sza'] < szaMax]
