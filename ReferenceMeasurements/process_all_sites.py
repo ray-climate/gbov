@@ -9,7 +9,7 @@
 This script automatically estimates Diffuse Horizontal Radiation (DHR) using reference measurements available in the
 input directory."""
 import numpy as np
-
+import sys
 from cal_dhr_bhr import *
 import pandas as pd
 import datetime
