@@ -358,7 +358,7 @@ def main():
 
     upscale_filelist = []
     for file in os.listdir(tower_retrieval_dir):
-        if file.endswith('GBOV_RM01_Calperum_001_20211231T000000Z_20221231T140000Z_008_ACR_V2.0_DHR.csv'):
+        if file.endswith('GBOV_RM01_Hainich_001_20211231T000000Z_20221231T230000Z_012_ACR_V2.0_DHR.csv'):
             upscale_filelist.append(file[:-8])
             print('Site to be upscaled: ', file[:-8])
 
