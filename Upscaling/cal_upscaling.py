@@ -19,10 +19,12 @@ from random import random
 # tower coordinate dic.
 tower_coordinate = {}
 tower_coordinate['Brasschaat'] = [51.3075, 4.5199, 'BRAS']
+tower_coordinate['CumberlandPlain'] = [-33.6152, 150.7236, 'CUMB']
 
 # instrument and canopy height.
 canopy_height = {}
 canopy_height['Brasschaat'] = [40., 21., 'BRAS']
+canopy_height['CumberlandPlain'] = [30., 23., 'CUMB']
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
 def create_rgb_quicklook(band2, band3, band4, output_file):
