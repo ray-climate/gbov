@@ -119,9 +119,10 @@ def main():
     alpha_dhr = 0.15
     alpha_bhr = 0.85
     print('Start processing all sites')
+
     for filename in os.listdir(rm1_dir):
-        print(filename)
-        if filename.endswith('GBOV_RM01_Calperum_001_20211231T000000Z_20221231T140000Z_008_ACR_V2.0.csv'):
+
+        if filename.endswith('csv') & (sys.argv[1] in filename):
 
             dhr_values, bhr_values, albedo_dates = [], [], []
             tocr_values, tocr_dates = [], []
