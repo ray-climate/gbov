@@ -120,7 +120,7 @@ def main():
     alpha_bhr = 0.85
 
     for filename in os.listdir(rm1_dir):
-        if filename.endswith('.csv'):
+        if filename.endswith('GBOV_RM01_Calperum_001_20211231T000000Z_20221231T140000Z_008_ACR_V2.0.csv'):
 
             dhr_values, bhr_values, albedo_dates = [], [], []
             tocr_values, tocr_dates = [], []
