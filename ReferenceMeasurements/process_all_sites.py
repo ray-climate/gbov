@@ -131,7 +131,7 @@ def main():
             data['Datetime'] = pd.to_datetime(data['Datetime'])
             data[['SW_IN', 'SW_OUT', 'SW_DIF']] = data[['SW_IN', 'SW_OUT', 'SW_DIF']].apply(pd.to_numeric, errors='coerce')
 
-            raw_data = pd.read_csv(f'{rm1_dir}/{filename}', delimiter=';')
+            raw_data = pd.read_csv(f'{filtered_rm1_dir}/{filename}', delimiter=';')
             lat, lon = raw_data.at[0, 'Lat_IS'], raw_data.at[0, 'Lon_IS']
             data['sza'] = get_sza(data['Datetime'], lat, lon)
             data['SW_DIF_ratio'] = data['SW_DIF'] / data['SW_IN']
