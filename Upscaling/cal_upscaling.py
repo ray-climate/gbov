@@ -26,6 +26,7 @@ tower_coordinate['Hainich'] = [51.070, 10.450, 'HAIN']
 tower_coordinate['Payerne'] = [46.815, 6.944, 'PAYE']
 tower_coordinate['NiwotRidgeForest'] = [40.03287, -105.5469, 'NIWO']
 tower_coordinate['LitchfieldSavanna'] = [-13.1790, 130.7945, 'LITC']
+tower_coordinate['DryRiver'] = [-15.2588, 132.3706, 'DRYR']
 
 # instrument and canopy height.
 canopy_height = {}
@@ -37,6 +38,7 @@ canopy_height['Hainich'] = [42., 9., 'HAIN']
 canopy_height['Payerne'] = [2., 0., 'PAYE']
 canopy_height['NiwotRidgeForest'] = [12., 0., 'NIWO']
 canopy_height['LitchfieldSavanna'] = [31., 0., 'LITC']
+canopy_height['DryRiver'] = [15., 0.3, 'DRYR']
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
 def create_rgb_quicklook(band2, band3, band4, output_file):
@@ -364,7 +366,7 @@ def main():
 
     upscale_filelist = []
     for file in os.listdir(tower_retrieval_dir):
-        if file.endswith('GBOV_RM01_LitchfieldSavanna_001_20211231T000000Z_20221214T083000Z_073_ACR_V2.0_DHR.csv'):
+        if file.endswith('GBOV_RM01_DryRiver_001_20211231T000000Z_20221231T143000Z_070_ACR_V2.0_DHR.csv'):
             upscale_filelist.append(file[:-8])
             print('Site to be upscaled: ', file[:-8])
 
