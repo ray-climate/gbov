@@ -24,6 +24,7 @@ tower_coordinate['RobsonCreekRainforest'] = [-17.11747, 145.6301, 'ROBS']
 tower_coordinate['Calperum'] = [-34.0027008056641, 140.587707519531, 'CALP']
 tower_coordinate['Hainich'] = [51.070, 10.450, 'HAIN']
 tower_coordinate['Payerne'] = [46.815, 6.944, 'PAYE']
+tower_coordinate['NiwotRidgeForest'] = [40.03287, -105.5469, 'NIWO']
 
 # instrument and canopy height.
 canopy_height = {}
@@ -33,6 +34,7 @@ canopy_height['RobsonCreekRainforest'] = [40., 23., 'ROBS']
 canopy_height['Calperum'] = [20., 3., 'CALP']
 canopy_height['Hainich'] = [42., 9., 'HAIN']
 canopy_height['Payerne'] = [2., 0., 'PAYE']
+canopy_height['NiwotRidgeForest'] = [12., 0., 'NIWO']
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
 def create_rgb_quicklook(band2, band3, band4, output_file):
