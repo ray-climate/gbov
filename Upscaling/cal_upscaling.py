@@ -213,7 +213,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     dhr_sw_fov = dhr_sw[pixels_within_radius]
 
     upscaling_factor = dhr_tower / np.nanmean(dhr_sw_fov[dhr_sw_fov > 0.])
-    print('upscaling factor: ', upscaling_factor)
+    print('DHR upscaling factor: ', upscaling_factor)
     create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
 
     (CGLS_grid, corrected_dhr_CGLS_resolution) = upscale_to_CGLS(lat, lon, dhr_sw, upscaling_factor, col_mesh, row_mesh)
@@ -281,7 +281,7 @@ def bhr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, l
     bhr_sw_fov = bhr_sw[pixels_within_radius]
 
     upscaling_factor = bhr_tower / np.nanmean(bhr_sw_fov[bhr_sw_fov > 0.])
-    print('upscaling factor: ', upscaling_factor)
+    print('BHR upscaling factor: ', upscaling_factor)
 
     (CGLS_grid, corrected_bhr_CGLS_resolution) = upscale_to_CGLS(lat, lon, bhr_sw, upscaling_factor, col_mesh, row_mesh)
 
@@ -348,7 +348,7 @@ def tocr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, 
     tocr_sw_fov = tocr_sw[pixels_within_radius]
 
     upscaling_factor = bhr_tower / np.nanmean(tocr_sw_fov[tocr_sw_fov > 0.])
-    print('upscaling factor: ', upscaling_factor)
+    print('ToC-R upscaling factor: ', upscaling_factor)
 
     (CGLS_grid, corrected_tocr_CGLS_resolution) = upscale_to_CGLS(lat, lon, tocr_sw, upscaling_factor, col_mesh, row_mesh)
 
