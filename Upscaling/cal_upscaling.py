@@ -40,7 +40,7 @@ canopy_height['Payerne'] = [2., 0., 'PAYE']
 canopy_height['NiwotRidgeForest'] = [12., 0., 'NIWO']
 canopy_height['LitchfieldSavanna'] = [31., 0., 'LITC']
 canopy_height['DryRiver'] = [15., 0.3, 'DRYR']
-tower_coordinate['SiouxFallsSurfRad'] = [10., 0., 'SIOU']
+canopy_height['SiouxFallsSurfRad'] = [10., 0., 'SIOU']
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
 def create_rgb_quicklook(band2, band3, band4, output_file):
