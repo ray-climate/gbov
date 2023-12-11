@@ -438,7 +438,9 @@ def main():
                 else:
                     print('No matching file found for', row_dhr['Datetime'])
 
-                print(os.path.join(sentinel2_site_dir, closest_file))
+                # replace last for letter in sentinel2_site_dir by first four letter after second '_' in closest_file
+                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, closest_file.split('_')[2][0:4], closest_file)
+                print(sentinel2_site_dir)
             #     (CGLS_grid, corrected_dhr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_dhr['DHR'], lat, lon, OUTPUT_site_dir, row_dhr['Datetime'])
             #     (CGLS_grid, corrected_bhr_CGLS_resolution) = bhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_bhr['BHR'], lat, lon, OUTPUT_site_dir, row_bhr['Datetime'])
             #
