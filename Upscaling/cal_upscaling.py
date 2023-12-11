@@ -410,7 +410,8 @@ def main():
                         # print('Cloud ratio for %s: ' %file, cloud_ratio)
                         if cloud_ratio < cloud_ratio_threshold:
                             sentinel2_list.append(file)
-
+            print('Sentinel2 list: ', sentinel2_list)
+            quit()
             if (row_dhr['DHR'] > 0) & (row_bhr['BHR'] > 0):
 
                 year_str = row_dhr['Datetime'].split('-')[0]
