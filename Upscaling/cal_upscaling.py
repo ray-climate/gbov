@@ -409,6 +409,7 @@ def main():
                 while year_increment <= 3:
                     year_int = year_int + year_increment
                     for file in os.listdir(os.path.join(sentinel2_dir, site_code, str(year_int))):
+                        print(file)
                         if os.path.isdir(os.path.join(sentinel2_dir, site_code, str(year_int), file)):
                             cloud_ratio = cal_cloud_covering_ratio(
                                 os.path.join(sentinel2_dir, site_code, str(year_int), file))
