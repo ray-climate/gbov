@@ -411,6 +411,7 @@ def main():
                     for file in os.listdir(os.path.join(sentinel2_dir, site_code, str(year_int))):
                         print(file)
                         if os.path.isdir(os.path.join(sentinel2_dir, site_code, str(year_int), file)):
+                            print(os.path.join(sentinel2_dir, site_code, str(year_int), file))
                             cloud_ratio = cal_cloud_covering_ratio(
                                 os.path.join(sentinel2_dir, site_code, str(year_int), file))
                             # print('Cloud ratio for %s: ' %file, cloud_ratio)
