@@ -206,7 +206,7 @@ def cal_tower_tocr(data, start_datetime, nominal_datetime, end_datetime, latitud
     BHR_value = np.nan
     BHR_beta = np.nan
 
-    while alpha_BHR >= 0.7:
+    while alpha_BHR >= 0.55:
 
         data_bhr = data[data['SW_DIF_ratio'] >= alpha_BHR]
         bhr_avg = data_bhr['SW_OUT'] / data_bhr['SW_IN']
@@ -292,7 +292,7 @@ def cal_tower_tocr(data, start_datetime, nominal_datetime, end_datetime, latitud
     F = np.array([1, brdf_f1(sza_tocr, 0, 0), brdf_f2(sza_tocr, 0, 0)], 'f4')
     tocr_value = np.dot(K, F)
 
-    if (tocr_value < 0) | (tocr_value > .5):
+    if (tocr_value < 0) | (tocr_value > .8):
         tocr_value = np.nan
 
     print("ToC-R is calculated: %s" % tocr_value)
