@@ -84,7 +84,7 @@ def preprocess_raw(DATA_DIR, filename, SAVE_DIR):
             writer.writerow((MeasureTime[i], SW_IN[i], SW_DIF[i], SW_OUT[i]))
 
 for file in os.listdir(RM1_DATA_DIR):
-    if file.endswith('.csv'):
+    if file.endswith('GBOV_RM01_Brasschaat_001_20210101T000000Z_20221231T233000Z_007_ACR_V2.0.csv'):
         print('Preprocessing file: {}'.format(file))
         preprocess_raw(RM1_DATA_DIR, file, SAVE_DIR)
         print('Preprocessing finished, saved to: {}'.format(SAVE_DIR + '/%s.csv' % file[:-4]))
