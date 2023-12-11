@@ -408,15 +408,15 @@ def main():
                 year_increment = 0
                 while year_increment <= 3:
                     year_int = year_int + year_increment
-                    for file in os.listdir(os.path.join(sentinel2_dir, site_code, str(year_int))):
-                        print(file)
-                        if os.path.isdir(os.path.join(sentinel2_dir, site_code, str(year_int), file)):
-                            print(os.path.join(sentinel2_dir, site_code, str(year_int), file))
-                            cloud_ratio = cal_cloud_covering_ratio(
-                                os.path.join(sentinel2_dir, site_code, str(year_int), file))
-                            # print('Cloud ratio for %s: ' %file, cloud_ratio)
-                            if cloud_ratio < cloud_ratio_threshold:
-                                sentinel2_list.append(file)
+                    # check if os.path.join(sentinel2_dir, site_code, str(year_int)) exists
+                    if os.path.exists(os.path.join(sentinel2_dir, site_code, str(year_int))):
+                        for file in os.listdir(os.path.join(sentinel2_dir, site_code, str(year_int))):
+                            if os.path.isdir(os.path.join(sentinel2_dir, site_code, str(year_int), file)):
+                                cloud_ratio = cal_cloud_covering_ratio(
+                                    os.path.join(sentinel2_dir, site_code, str(year_int), file))
+                                # print('Cloud ratio for %s: ' %file, cloud_ratio)
+                                if cloud_ratio < cloud_ratio_threshold:
+                                    sentinel2_list.append(file)
                     year_increment += 1
 
             print('Sentinel2 list: ', sentinel2_list)
