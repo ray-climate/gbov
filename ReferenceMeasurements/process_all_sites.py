@@ -158,6 +158,7 @@ def main():
                         f"and end date {end_date}")
 
                     try:
+                        print('Calculating TOC_R')
                         toc_r = cal_tower_tocr(data, start_date, nominal_date, end_date, lat, lon, alpha_dhr, alpha_bhr)
 
                         tocr_dates.append(nominal_date)
@@ -167,6 +168,7 @@ def main():
                         print('NO enough data for TOC_R calculation')
 
                     try:
+                        print('Calculating DHR and BHR')
                         (dhr_value, bhr_value) = cal_tower_dhr_bhr(data, start_date, nominal_date, end_date, lat, lon, alpha_dhr, alpha_bhr)
 
                         albedo_dates.append(nominal_date)
