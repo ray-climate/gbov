@@ -424,7 +424,7 @@ def main():
             if (row_dhr['DHR'] > 0) & (row_bhr['BHR'] > 0):
 
                 year_str = row_dhr['Datetime'].split('-')[0]
-                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, year_str)
+                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, closest_file.split('_')[2][0:4])
 
                 # file in sentinel2_site_dir has YYYYMMDD after the second underscore, find the file with the date closest to the datetime in dhr_data
 
@@ -439,51 +439,50 @@ def main():
                     print('No matching file found for', row_dhr['Datetime'])
 
                 # replace last for letter in sentinel2_site_dir by first four letter after second '_' in closest_file
-                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, closest_file.split('_')[2][0:4], closest_file)
-                print(sentinel2_site_dir)
-            #     (CGLS_grid, corrected_dhr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_dhr['DHR'], lat, lon, OUTPUT_site_dir, row_dhr['Datetime'])
-            #     (CGLS_grid, corrected_bhr_CGLS_resolution) = bhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_bhr['BHR'], lat, lon, OUTPUT_site_dir, row_bhr['Datetime'])
-            #
-            #     unc_1 = np.sqrt(2.) * 0.05 / np.sqrt(30.)
-            #     unc_2 = 0.1 + (random() - 0.5) * 0.1
-            #
-            #     total_unc = unc_1 + unc_2
-            #
-            #     with open(OUTPUT_site_dir + '/GBOV_LP02_%s_001_%s%s%s_%s%s%s_001_UCL_V1.0.csv' % (site_name, row_dhr['Datetime'][0:4], row_dhr['Datetime'][5:7], row_dhr['Datetime'][8:10], row_dhr['Datetime'][0:4], row_dhr['Datetime'][5:7], row_dhr['Datetime'][8:10]), "w") as output:
-            #         writer = csv.writer(output, lineterminator='\n')
-            #         writer.writerow(('Latitude', 'Longitude', 'DHR', 'DHR_unc', 'BHR', 'BHR_unc'))
-            #         for k in range(len(CGLS_grid)):
-            #             writer.writerow((CGLS_grid[k][0], CGLS_grid[k][1], corrected_dhr_CGLS_resolution[k], corrected_dhr_CGLS_resolution[k] * total_unc, corrected_bhr_CGLS_resolution[k], corrected_bhr_CGLS_resolution[k] * total_unc))
-            #
-            # if (row_tocr['TOC_R'] > 0):
-            #
-            #     year_str = row_tocr['Datetime'].split('-')[0]
-            #     sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, year_str)
-            #
-            #     # file in sentinel2_site_dir has YYYYMMDD after the second underscore, find the file with the date closest to the datetime in dhr_data
-            #
-            #     # Convert the date string to a datetime object
-            #     row_date = datetime.strptime(row_tocr['Datetime'].replace('-', ''), '%Y%m%d')
-            #     closest_file = find_closest_date_file(row_date, sentinel2_list)
-            #
-            #     if closest_file:
-            #         print('Upscale datetime using Sentinel2 data: ', row_tocr['Datetime'],
-            #             os.path.join(sentinel2_site_dir, closest_file))
-            #     else:
-            #         print('No matching file found for', row_tocr['Datetime'])
-            #
-            #     (CGLS_grid, corrected_tocr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_tocr['TOC_R'], lat, lon, OUTPUT_site_dir, row_tocr['Datetime'])
-            #
-            #     unc_1 = np.sqrt(2.) * 0.05 / np.sqrt(30.)
-            #     unc_2 = 0.1 + (random() - 0.5) * 0.1
-            #
-            #     total_unc = unc_1 + unc_2
-            #
-            #     with open(OUTPUT_site_dir + '/GBOV_LP01_%s_001_%s%s%s_%s%s%s_001_UCL_V1.0.csv' % (site_name, row_tocr['Datetime'][0:4], row_tocr['Datetime'][5:7], row_tocr['Datetime'][8:10], row_tocr['Datetime'][0:4], row_tocr['Datetime'][5:7], row_tocr['Datetime'][8:10]), "w") as output:
-            #         writer = csv.writer(output, lineterminator='\n')
-            #         writer.writerow(('Latitude', 'Longitude', 'TOC_R', 'TOC_R_unc'))
-            #         for k in range(len(CGLS_grid)):
-            #             writer.writerow((CGLS_grid[k][0], CGLS_grid[k][1], corrected_tocr_CGLS_resolution[k], corrected_tocr_CGLS_resolution[k] * total_unc))
+
+                (CGLS_grid, corrected_dhr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_dhr['DHR'], lat, lon, OUTPUT_site_dir, row_dhr['Datetime'])
+                (CGLS_grid, corrected_bhr_CGLS_resolution) = bhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_bhr['BHR'], lat, lon, OUTPUT_site_dir, row_bhr['Datetime'])
+
+                unc_1 = np.sqrt(2.) * 0.05 / np.sqrt(30.)
+                unc_2 = 0.1 + (random() - 0.5) * 0.1
+
+                total_unc = unc_1 + unc_2
+
+                with open(OUTPUT_site_dir + '/GBOV_LP02_%s_001_%s%s%s_%s%s%s_001_UCL_V1.0.csv' % (site_name, row_dhr['Datetime'][0:4], row_dhr['Datetime'][5:7], row_dhr['Datetime'][8:10], row_dhr['Datetime'][0:4], row_dhr['Datetime'][5:7], row_dhr['Datetime'][8:10]), "w") as output:
+                    writer = csv.writer(output, lineterminator='\n')
+                    writer.writerow(('Latitude', 'Longitude', 'DHR', 'DHR_unc', 'BHR', 'BHR_unc'))
+                    for k in range(len(CGLS_grid)):
+                        writer.writerow((CGLS_grid[k][0], CGLS_grid[k][1], corrected_dhr_CGLS_resolution[k], corrected_dhr_CGLS_resolution[k] * total_unc, corrected_bhr_CGLS_resolution[k], corrected_bhr_CGLS_resolution[k] * total_unc))
+
+            if (row_tocr['TOC_R'] > 0):
+
+                year_str = row_tocr['Datetime'].split('-')[0]
+                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, year_str)
+
+                # file in sentinel2_site_dir has YYYYMMDD after the second underscore, find the file with the date closest to the datetime in dhr_data
+
+                # Convert the date string to a datetime object
+                row_date = datetime.strptime(row_tocr['Datetime'].replace('-', ''), '%Y%m%d')
+                closest_file = find_closest_date_file(row_date, sentinel2_list)
+
+                if closest_file:
+                    print('Upscale datetime using Sentinel2 data: ', row_tocr['Datetime'],
+                        os.path.join(sentinel2_site_dir, closest_file))
+                else:
+                    print('No matching file found for', row_tocr['Datetime'])
+
+                (CGLS_grid, corrected_tocr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_tocr['TOC_R'], lat, lon, OUTPUT_site_dir, row_tocr['Datetime'])
+
+                unc_1 = np.sqrt(2.) * 0.05 / np.sqrt(30.)
+                unc_2 = 0.1 + (random() - 0.5) * 0.1
+
+                total_unc = unc_1 + unc_2
+
+                with open(OUTPUT_site_dir + '/GBOV_LP01_%s_001_%s%s%s_%s%s%s_001_UCL_V1.0.csv' % (site_name, row_tocr['Datetime'][0:4], row_tocr['Datetime'][5:7], row_tocr['Datetime'][8:10], row_tocr['Datetime'][0:4], row_tocr['Datetime'][5:7], row_tocr['Datetime'][8:10]), "w") as output:
+                    writer = csv.writer(output, lineterminator='\n')
+                    writer.writerow(('Latitude', 'Longitude', 'TOC_R', 'TOC_R_unc'))
+                    for k in range(len(CGLS_grid)):
+                        writer.writerow((CGLS_grid[k][0], CGLS_grid[k][1], corrected_tocr_CGLS_resolution[k], corrected_tocr_CGLS_resolution[k] * total_unc))
 
 
 
