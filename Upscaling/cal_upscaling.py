@@ -446,10 +446,7 @@ def main():
                 (CGLS_grid, corrected_dhr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_dhr['DHR'], lat, lon, OUTPUT_site_dir, row_dhr['Datetime'])
                 (CGLS_grid, corrected_bhr_CGLS_resolution) = bhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_bhr['BHR'], lat, lon, OUTPUT_site_dir, row_bhr['Datetime'])
 
-                unc_1 = np.sqrt(2.) * 0.05 / np.sqrt(30.)
-                unc_2 = 0.1 + (random() - 0.5) * 0.1
-
-                total_unc = unc_1 + unc_2
+                total_unc = np.sqrt(2.) * 0.05 / np.sqrt(30.) + 0.1 + (random() - 0.5) * 0.1
 
                 with open(OUTPUT_site_dir + '/GBOV_LP02_%s_001_%s%s%s_%s%s%s_001_UCL_V1.0.csv' % (site_name, row_dhr['Datetime'][0:4], row_dhr['Datetime'][5:7], row_dhr['Datetime'][8:10], row_dhr['Datetime'][0:4], row_dhr['Datetime'][5:7], row_dhr['Datetime'][8:10]), "w") as output:
                     writer = csv.writer(output, lineterminator='\n')
