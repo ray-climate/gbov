@@ -405,6 +405,7 @@ def main():
             if index_dhr == 0:
                 sentinel2_list = []
                 for file in os.listdir(os.path.join(sentinel2_dir, site_code, row_dhr['Datetime'].split('-')[0])):
+                    print(row_dhr['Datetime'].split('-')[0])
                     if os.path.isdir(os.path.join(sentinel2_dir, site_code, row_dhr['Datetime'].split('-')[0])):
                         cloud_ratio = cal_cloud_covering_ratio(os.path.join(sentinel2_dir, site_code, row_dhr['Datetime'].split('-')[0], file))
                         # print('Cloud ratio for %s: ' %file, cloud_ratio)
