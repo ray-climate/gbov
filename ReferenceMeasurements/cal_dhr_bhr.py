@@ -219,7 +219,8 @@ def cal_tower_tocr(data, start_datetime, nominal_datetime, end_datetime, latitud
             alpha_BHR -= 0.02
 
     BlueSkyAlbedo = data['SW_OUT'] / data['SW_IN']
-
+    print('BHR_value', BHR_value)
+    print('BHR_beta', BHR_beta)
     # set BHR_value to nan if alpha_BHR < 0.75
     if (BHR_value > 0.) & (BHR_beta > 0.):
         if (BlueSkyAlbedo - BHR_beta * BHR_value) / (1 - BHR_beta) > 0:
