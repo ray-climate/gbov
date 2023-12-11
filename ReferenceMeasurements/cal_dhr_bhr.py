@@ -206,7 +206,7 @@ def cal_tower_tocr(data, start_datetime, nominal_datetime, end_datetime, latitud
     BHR_value = np.nan
     BHR_beta = np.nan
 
-    while alpha_BHR >= 0.5:
+    while alpha_BHR >= 0.75:
 
         data_bhr = data[data['SW_DIF_ratio'] >= alpha_BHR]
         bhr_avg = data_bhr['SW_OUT'] / data_bhr['SW_IN']
