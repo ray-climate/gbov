@@ -292,6 +292,7 @@ def cal_tower_tocr(data, start_datetime, nominal_datetime, end_datetime, latitud
     F = np.array([1, brdf_f1(sza_tocr, 0, 0), brdf_f2(sza_tocr, 0, 0)], 'f4')
     tocr_value = np.dot(K, F)
 
+    print('Direct ToC-R is calculated: %s' % tocr_value)
     if (tocr_value < 0) | (tocr_value > .8):
         tocr_value = np.nan
 
