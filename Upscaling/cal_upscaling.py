@@ -419,7 +419,7 @@ def main():
                                     sentinel2_list.append(file)
                     year_increment += 1
 
-            print('Sentinel2 list: ', sentinel2_list)
+            # print('Sentinel2 list: ', sentinel2_list)
 
             if (row_dhr['DHR'] > 0) & (row_bhr['BHR'] > 0):
 
