@@ -198,7 +198,7 @@ def main():
 
             # if number of valid dhr_values is less than 10, then interpolate between the first and last valid dhr_values based on albedo_dates
             # albedo_dates is a list of strings, in the format of YYYY-MM-DD. Convert before using np.interp
-            if len(np.asarray(dhr_values)[~np.isnan(dhr_values)]) < 24:
+            if len(np.asarray(dhr_values)[~np.isnan(dhr_values)]) < 12:
 
                     print('Interpolating DHR values')
                     albedo_dates_datetime = [datetime.datetime.strptime(date, "%Y-%m-%d") for date in albedo_dates]
