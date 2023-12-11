@@ -31,6 +31,7 @@ tower_coordinate['SiouxFallsSurfRad'] = [43.730, -96.620, 'SIOU']
 tower_coordinate['Izana'] = [28.30935, -16.49926, 'IZAN']
 tower_coordinate['Grignon'] = [48.8442192077637, 1.9519100189209, 'GRIG']
 tower_coordinate['GreatWesternWoodland'] = [-30.1913, 120.6541, 'GREA']
+tower_coordinate['GoodwinCreek'] = [34.255, -89.873, 'GOOD']
 
 # instrument and canopy height.
 canopy_height = {}
@@ -47,6 +48,7 @@ canopy_height['SiouxFallsSurfRad'] = [10., 0., 'SIOU']
 canopy_height['Izana'] = [2., 0., 'IZAN']
 canopy_height['Grignon'] = [2., 0., 'GRIG']
 canopy_height['GreatWesternWoodland'] = [35., 0., 'GREA']
+canopy_height['GoodwinCreek'] = [10., 0., 'GOOD']
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
 def create_rgb_quicklook(band2, band3, band4, output_file):
