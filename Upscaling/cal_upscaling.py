@@ -424,13 +424,14 @@ def main():
             if (row_dhr['DHR'] > 0) & (row_bhr['BHR'] > 0):
 
                 year_str = row_dhr['Datetime'].split('-')[0]
-                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, closest_file.split('_')[2][0:4])
 
                 # file in sentinel2_site_dir has YYYYMMDD after the second underscore, find the file with the date closest to the datetime in dhr_data
 
                 # Convert the date string to a datetime object
                 row_date = datetime.strptime(row_dhr['Datetime'].replace('-', ''), '%Y%m%d')
                 closest_file = find_closest_date_file(row_date, sentinel2_list)
+
+                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, closest_file.split('_')[2][0:4])
 
                 if closest_file:
                     print('Upscale datetime using Sentinel2 data: ', row_dhr['Datetime'],
