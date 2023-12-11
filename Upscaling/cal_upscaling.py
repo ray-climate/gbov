@@ -30,6 +30,7 @@ tower_coordinate['DryRiver'] = [-15.2588, 132.3706, 'DRYR']
 tower_coordinate['SiouxFallsSurfRad'] = [43.730, -96.620, 'SIOU']
 tower_coordinate['Izana'] = [28.30935, -16.49926, 'IZAN']
 tower_coordinate['Grignon'] = [48.8442192077637, 1.9519100189209, 'GRIG']
+tower_coordinate['GreatWesternWoodland'] = [-30.1913, 120.6541, 'GREA']
 
 # instrument and canopy height.
 canopy_height = {}
@@ -45,6 +46,7 @@ canopy_height['DryRiver'] = [15., 0.3, 'DRYR']
 canopy_height['SiouxFallsSurfRad'] = [10., 0., 'SIOU']
 canopy_height['Izana'] = [2., 0., 'IZAN']
 canopy_height['Grignon'] = [2., 0., 'GRIG']
+canopy_height['GreatWesternWoodland'] = [35., 0., 'GREA']
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
 def create_rgb_quicklook(band2, band3, band4, output_file):
@@ -372,7 +374,7 @@ def main():
 
     upscale_filelist = []
     for file in os.listdir(tower_retrieval_dir):
-        if file.endswith('GBOV_RM01_Grignon_001_20210101T000000Z_20221231T213000Z_010_ACR_V2.0_DHR.csv'):
+        if file.endswith('GBOV_RM01_GreatWesternWoodland_001_20211231T000000Z_20221231T160000Z_071_ACR_V2.0_DHR.csv'):
             upscale_filelist.append(file[:-8])
             print('Site to be upscaled: ', file[:-8])
 
