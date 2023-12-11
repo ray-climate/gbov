@@ -178,7 +178,7 @@ def main():
 
             # if number of valid tocr_values is less than 10, then interpolate between the first and last valid tocr_values based on tocr_dates
             # tocr_dates is a list of strings, in the format of YYYY-MM-DD. Convert before using np.interp
-            if len(np.asarray(tocr_values)[~np.isnan(tocr_values)]) < 24:
+            if len(np.asarray(tocr_values)[~np.isnan(tocr_values)]) < 12:
 
                 print('Interpolating TOC_R values')
                 tocr_dates_datetime = [datetime.datetime.strptime(date, "%Y-%m-%d") for date in tocr_dates]
