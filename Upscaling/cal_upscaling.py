@@ -132,18 +132,13 @@ def s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CR
 
     ULBoundaryUTM = utm.from_latlon(UpperBoundaryLat, LeftBoundaryLon)
     print('ULBoundaryUTM: ', ULBoundaryUTM)
-    ULBoundaryUTM[0] = ULBoundaryUTM[0] + 128689.
-    ULBoundaryUTM[1] = ULBoundaryUTM[1] - 118.
 
     LRBoundaryUTM = utm.from_latlon(LowerBoundaryLat, RightBoundaryLon)
-    LRBoundaryUTM[0] = LRBoundaryUTM[0] + 128689.
-    LRBoundaryUTM[1] = LRBoundaryUTM[1] - 118.
 
-
-    UpperBoundaryUTM = ULBoundaryUTM[1]
-    LeftBoundaryUTM = ULBoundaryUTM[0]
-    LowerBoundaryUTM = LRBoundaryUTM[1]
-    RightBoundaryUTM = LRBoundaryUTM[0]
+    UpperBoundaryUTM = ULBoundaryUTM[1] - 118.
+    LeftBoundaryUTM = ULBoundaryUTM[0] + 128689.
+    LowerBoundaryUTM = LRBoundaryUTM[1] - 118.
+    RightBoundaryUTM = LRBoundaryUTM[0] + 128689.
 
     IndexOfAggregation = np.where(
         (utm_x_mesh > LeftBoundaryUTM) & (utm_x_mesh < RightBoundaryUTM) & (utm_y_mesh < UpperBoundaryUTM) & (
