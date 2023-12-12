@@ -219,6 +219,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
     tower_utm_x = tower_utm_x + 1286900.
     tower_utm_y = tower_utm_y - 118.
+    print('tower_utm_x, tower_utm_y: ', tower_utm_x, tower_utm_y)
     xOrigin = geotransform[0]
     yOrigin = geotransform[3]
     pixelWidth = geotransform[1]
