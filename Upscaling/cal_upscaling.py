@@ -40,6 +40,7 @@ tower_coordinate['DesertRock'] = [36.624, -116.019, 'DESE']
 tower_coordinate['Cabauw'] = [51.9711, 4.9267, 'CABA']
 tower_coordinate['TableMountain'] = [40.125, -105.237, 'TABL']
 tower_coordinate['Bondville'] = [40.052, -88.373, 'BOND']
+tower_coordinate['Ny-Alesund'] = [78.925, 11.93, 'NYAL']
 
 # instrument and canopy height.
 canopy_height = {}
@@ -65,6 +66,8 @@ canopy_height['DesertRock'] = [10., 0., 'DESE']
 canopy_height['Cabauw'] = [2., 0., 'CABA']
 canopy_height['TableMountain'] = [10., 0., 'TABL']
 canopy_height['Bondville'] = [10., 0., 'BOND']
+canopy_height['Ny-Alesund'] = [2., 0., 'NYAL']
+
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
 def create_rgb_quicklook(band2, band3, band4, output_file):
@@ -392,7 +395,7 @@ def main():
 
     upscale_filelist = []
     for file in os.listdir(tower_retrieval_dir):
-        if file.endswith('GBOV_RM01_Bondville_001_20211231T000000Z_20221231T235900Z_046_ACR_V2.0_DHR.csv'):
+        if file.endswith('GBOV_RM01_Ny-Alesund_001_20211231T000000Z_20221231T225900Z_058_ACR_V2.0_DHR.csv'):
             upscale_filelist.append(file[:-8])
             print('Site to be upscaled: ', file[:-8])
 
