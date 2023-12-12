@@ -131,14 +131,12 @@ def s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CR
     RightBoundaryLon = CR_lon + CGLS_resolution / 2.
 
     ULBoundaryUTM = utm.from_latlon(UpperBoundaryLat, LeftBoundaryLon)
-    print('ULBoundaryUTM: ', ULBoundaryUTM)
-
     LRBoundaryUTM = utm.from_latlon(LowerBoundaryLat, RightBoundaryLon)
 
-    UpperBoundaryUTM = ULBoundaryUTM[1] - 118.
-    LeftBoundaryUTM = ULBoundaryUTM[0] + 128689.
-    LowerBoundaryUTM = LRBoundaryUTM[1] - 118.
-    RightBoundaryUTM = LRBoundaryUTM[0] + 128689.
+    UpperBoundaryUTM = ULBoundaryUTM[1]
+    LeftBoundaryUTM = ULBoundaryUTM[0]
+    LowerBoundaryUTM = LRBoundaryUTM[1]
+    RightBoundaryUTM = LRBoundaryUTM[0]
 
     IndexOfAggregation = np.where(
         (utm_x_mesh > LeftBoundaryUTM) & (utm_x_mesh < RightBoundaryUTM) & (utm_y_mesh < UpperBoundaryUTM) & (
@@ -219,8 +217,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     projection = dhr_b02.GetProjection()
 
     tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
-    tower_utm_x = tower_utm_x + 128689.
-    tower_utm_y = tower_utm_y - 118.
+
     print('tower_utm_x, tower_utm_y: ', tower_utm_x, tower_utm_y)
     xOrigin = geotransform[0]
     yOrigin = geotransform[3]
@@ -290,8 +287,6 @@ def bhr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, l
     projection = bhr_b02.GetProjection()
 
     tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
-    tower_utm_x = tower_utm_x + 128689.
-    tower_utm_y = tower_utm_y - 118.
 
     xOrigin = geotransform[0]
     yOrigin = geotransform[3]
@@ -359,8 +354,7 @@ def tocr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, 
     projection = tocr_b02.GetProjection()
 
     tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
-    tower_utm_x = tower_utm_x + 128689.
-    tower_utm_y = tower_utm_y - 118.
+
     xOrigin = geotransform[0]
     yOrigin = geotransform[3]
     pixelWidth = geotransform[1]
