@@ -43,6 +43,7 @@ tower_coordinate['Bondville'] = [40.052, -88.373, 'BOND']
 tower_coordinate['Ny-Alesund'] = [78.925, 11.93, 'NYAL']
 tower_coordinate['Barrow'] = [71.323, -156.607, 'BARR']
 tower_coordinate['RockSprings'] = [40.720, -77.931, 'ROCK']
+tower_coordinate['SouthernGreatPlains'] = [36.605, -97.488, 'SGPL']
 
 # instrument and canopy height.
 canopy_height = {}
@@ -71,6 +72,7 @@ canopy_height['Bondville'] = [10., 0., 'BOND']
 canopy_height['Ny-Alesund'] = [2., 0., 'NYAL']
 canopy_height['Barrow'] = [10., 0., 'BARR']
 canopy_height['RockSprings'] = [10., 0., 'ROCK']
+canopy_height['SouthernGreatPlains'] = [10., 0., 'SGPL']
 
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
