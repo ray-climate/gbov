@@ -66,7 +66,7 @@ canopy_height['DesertRock'] = [10., 0., 'DESE']
 canopy_height['Cabauw'] = [2., 0., 'CABA']
 canopy_height['TableMountain'] = [10., 0., 'TABL']
 canopy_height['Bondville'] = [10., 0., 'BOND']
-canopy_height['Ny-Alesund'] = [5., 0., 'NYAL']
+canopy_height['Ny-Alesund'] = [2., 0., 'NYAL']
 
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
@@ -237,6 +237,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     # Calculate the distance from the tower for all pixels
     distance_mesh = np.sqrt((col_mesh - tower_utm_x) ** 2 + (row_mesh - tower_utm_y) ** 2)
     # Find pixels within the specified radius
+    print('min distance: ', np.nanmin(distance_mesh))
     pixels_within_radius = np.where(distance_mesh <= radius)
 
     dhr_sw_fov = dhr_sw[pixels_within_radius]
