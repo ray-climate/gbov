@@ -489,7 +489,7 @@ def main():
             if (row_tocr['TOC_R'] > 0):
 
                 year_str = row_tocr['Datetime'].split('-')[0]
-                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, year_str)
+                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, closest_file.split('_')[2][0:4])
 
                 # file in sentinel2_site_dir has YYYYMMDD after the second underscore, find the file with the date closest to the datetime in dhr_data
 
@@ -503,7 +503,7 @@ def main():
                 else:
                     print('No matching file found for', row_tocr['Datetime'])
 
-                (CGLS_grid, corrected_tocr_CGLS_resolution) = dhr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_tocr['TOC_R'], lat, lon, OUTPUT_site_dir, row_tocr['Datetime'])
+                (CGLS_grid, corrected_tocr_CGLS_resolution) = tocr_correction(os.path.join(sentinel2_site_dir, closest_file), height_tower, height_canopy, row_tocr['TOC_R'], lat, lon, OUTPUT_site_dir, row_tocr['Datetime'])
 
                 unc_1 = np.sqrt(2.) * 0.05 / np.sqrt(30.)
                 unc_2 = 0.1 + (random() - 0.5) * 0.1
