@@ -235,7 +235,7 @@ def cal_tower_tocr(data, start_datetime, nominal_datetime, end_datetime, latitud
 
     data['DHR_corrected'] = BlueSkyAlbedo
     # only keep data with DHR_corrected > 0
-    data = data[(data['DHR_corrected'] > 0) & (data['SW_DIF_ratio'] < 0.5)]
+    data = data[(data['DHR_corrected'] > 0) & (data['SW_DIF_ratio'] < 0.6)]
     print('DHR_corrected', data['DHR_corrected'])
 
     #######################################################################################
