@@ -217,7 +217,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     projection = dhr_b02.GetProjection()
 
     tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
-    tower_utm_x = tower_utm_x + 1286900.
+    tower_utm_x = tower_utm_x + 128689.
     tower_utm_y = tower_utm_y - 118.
     print('tower_utm_x, tower_utm_y: ', tower_utm_x, tower_utm_y)
     xOrigin = geotransform[0]
@@ -288,7 +288,7 @@ def bhr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, l
     projection = bhr_b02.GetProjection()
 
     tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
-    tower_utm_x = tower_utm_x + 1286900.
+    tower_utm_x = tower_utm_x + 128689.
     tower_utm_y = tower_utm_y - 118.
 
     xOrigin = geotransform[0]
@@ -357,7 +357,7 @@ def tocr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, 
     projection = tocr_b02.GetProjection()
 
     tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
-    tower_utm_x = tower_utm_x + 1286900.
+    tower_utm_x = tower_utm_x + 128689.
     tower_utm_y = tower_utm_y - 118.
     xOrigin = geotransform[0]
     yOrigin = geotransform[3]
