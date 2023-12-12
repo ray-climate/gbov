@@ -225,16 +225,16 @@ def cal_tower_tocr(data, start_datetime, nominal_datetime, end_datetime, latitud
     # set BHR_value to nan if alpha_BHR < 0.75
 
     if (BHR_value > 0.) & (BHR_beta > 0.):
-        if (BlueSkyAlbedo - BHR_beta * BHR_value) / (1 - BHR_beta) > 0:
-            data['DHR_corrected'] = (BlueSkyAlbedo - BHR_beta * BHR_value) / (1 - BHR_beta)
-            print("DHR_corrected from BHR", data['DHR_corrected'])
-        else:
-            data['DHR_corrected'] = BlueSkyAlbedo
-            print("DHR is not corrected from BHR because negative correction", data['DHR_corrected'])
+
+        data['DHR_corrected'] = (BlueSkyAlbedo - BHR_beta * BHR_value) / (1 - BHR_beta)
+        print("DHR_corrected from BHR", data['DHR_corrected'])
+
     else:
         print("Not enough measurements to correct DHR")
         data['DHR_corrected'] = BlueSkyAlbedo
 
+    # only keep data with DHR_corrected > 0
+    data = data[data['DHR_corrected'] > 0]
     print('DHR_corrected', data['DHR_corrected'])
 
     #######################################################################################
