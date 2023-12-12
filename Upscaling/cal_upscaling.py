@@ -240,7 +240,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     pixels_within_radius = np.where(distance_mesh <= radius)
 
     dhr_sw_fov = dhr_sw[pixels_within_radius]
-
+    print('dhr_sw_fov: ', dhr_sw_fov)
     upscaling_factor = dhr_tower / np.nanmean(dhr_sw_fov[dhr_sw_fov > 0.])
     print('DHR upscaling factor: ', upscaling_factor)
     create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
