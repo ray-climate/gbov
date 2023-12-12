@@ -243,7 +243,7 @@ def cal_tower_tocr(data, start_datetime, nominal_datetime, end_datetime, latitud
     #######################################################################################
 
     szaArr = np.array(range(0, int(szaMax) + 5, 5))
-
+s
     wangle = 2.5
     num = len(szaArr)
     Y = np.zeros(num)
