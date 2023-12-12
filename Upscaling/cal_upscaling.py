@@ -131,7 +131,13 @@ def s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CR
     RightBoundaryLon = CR_lon + CGLS_resolution / 2.
 
     ULBoundaryUTM = utm.from_latlon(UpperBoundaryLat, LeftBoundaryLon)
+    ULBoundaryUTM[0] = ULBoundaryUTM[0] + 128689.
+    ULBoundaryUTM[1] = ULBoundaryUTM[1] - 118.
+
     LRBoundaryUTM = utm.from_latlon(LowerBoundaryLat, RightBoundaryLon)
+    LRBoundaryUTM[0] = LRBoundaryUTM[0] + 128689.
+    LRBoundaryUTM[1] = LRBoundaryUTM[1] - 118.
+
 
     UpperBoundaryUTM = ULBoundaryUTM[1]
     LeftBoundaryUTM = ULBoundaryUTM[0]
