@@ -10,12 +10,7 @@ import numpy as np
 import datetime
 import csv
 import os
-
-RM1_DATA_DIR = './RM1_data'
-SAVE_DIR = './FilterRawData'
-
-# Create output directory if not exists
-os.makedirs(SAVE_DIR, exist_ok=True)
+from IPython import embed
 
 # write a function to plot SW_IN, SW_OUT and SW_DIF
 def plot_SW(SW_IN, SW_OUT, SW_DIF, MeasureTime, filename):
@@ -48,7 +43,7 @@ def plot_SW(SW_IN, SW_OUT, SW_DIF, MeasureTime, filename):
     plt.close()
 
 
-def preprocess_raw(DATA_DIR, filename, SAVE_DIR):
+def preprocess_raw(DATA_DIR, filename, SAVE_DIR, file):
 
     data = pd.read_csv(DATA_DIR + '/' + filename, delimiter=';')
 
@@ -56,14 +51,15 @@ def preprocess_raw(DATA_DIR, filename, SAVE_DIR):
     data['TIME_IS'] = pd.to_datetime(data['TIME_IS'], format='%Y%m%dT%H%M%SZ')
 
     # Convert columns to numeric, replacing non-numeric values with NaN
+    for col in ['QC_SW_IN', 'QC_SW_OUT', 'QC_SW_DIF']:
+        data[col] = pd.to_numeric(data[col], errors='coerce')
+        data[col].replace(1.0, np.nan, inplace=True)
     for col in ['SW_IN', 'SW_OUT', 'SW_DIF']:
         data[col] = pd.to_numeric(data[col], errors='coerce')
-        # set -999. as NaN
         data[col].replace(-999., np.nan, inplace=True)
 
     # Drop the rows with missing data
-    data.dropna(inplace=True)
-
+    data.dropna(subset=["SW_IN", "SW_OUT", "SW_DIF", "QC_SW_IN", "QC_SW_OUT", "QC_SW_DIF"], inplace=True)
 
     MeasureTime = np.copy(data['TIME_IS'])
     SW_IN = np.asarray(data['SW_IN'])
@@ -83,8 +79,26 @@ def preprocess_raw(DATA_DIR, filename, SAVE_DIR):
         for i in range(len(MeasureTime)):
             writer.writerow((MeasureTime[i], SW_IN[i], SW_DIF[i], SW_OUT[i]))
 
-for file in os.listdir(RM1_DATA_DIR):
-    if file.endswith('GBOV_RM01_Brasschaat_001_20210101T000000Z_20221231T233000Z_007_ACR_V2.0.csv'):
-        print('Preprocessing file: {}'.format(file))
-        preprocess_raw(RM1_DATA_DIR, file, SAVE_DIR)
-        print('Preprocessing finished, saved to: {}'.format(SAVE_DIR + '/%s.csv' % file[:-4]))
+def main():
+    RM1_DATA_DIR = '/mount/internal/work-st/projects/jrc-066/1953-s2gm/GBOV-RM1-LP/RM01'
+    SAVE_DIR = '/mount/internal/work-st/projects/jrc-066/1953-s2gm/GBOV-RM1-LP/FilterRawData'
+
+    filtered_filelist = []
+    for file in os.listdir(SAVE_DIR):
+        if file.endswith('csv'):
+            filtered_filelist.append("_".join(file.split("_")[:9]))
+
+    # Create output directory if not exists
+    os.makedirs(SAVE_DIR, exist_ok=True)
+    for file in os.listdir(RM1_DATA_DIR):
+        not_yet_filtered = True
+        for filtered_file in filtered_filelist:
+            if filtered_file.split('_')[2] == file.split('_')[2]: not_yet_filtered = False
+
+        if file.endswith('csv') and not_yet_filtered:
+            print('Preprocessing file: {}'.format(file))
+            preprocess_raw(RM1_DATA_DIR, file, SAVE_DIR, file)
+            print('Preprocessing finished, saved to: {}'.format(SAVE_DIR + '/%s.csv' % file[:-4]))
+
+if __name__ == "__main__":
+    main()

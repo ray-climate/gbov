@@ -80,4 +80,4 @@ def process_csv(file_path, size_km, output_dir):
 
 # Example usage
 output_directory = 'geojson_output'  # Define your output directory
-process_csv('../sites/geolocation.csv', 20, output_directory)  # Adjust the size_km as needed
+process_csv('/mount/internal/work-st/projects/jrc-066/1953-s2gm/src/gbov/sites/geolocationNew.csv', 20, output_directory)  # Adjust the size_km as needed

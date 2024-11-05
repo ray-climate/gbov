@@ -8,14 +8,17 @@
 
 This script automatically estimates Diffuse Horizontal Radiation (DHR) using reference measurements available in the
 input directory."""
-import numpy as np
-import sys
-from cal_dhr_bhr import *
+
 import pandas as pd
 import datetime
 import os
+import sys
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+from IPython import embed
+
+sys.path.append("/mount/internal/work-st/projects/jrc-066/1953-s2gm/src/gbov/ReferenceMeasurements")
+from cal_dhr_bhr import *
 
 def plot_dhr(dhr_values, dates, output_path):
     """
@@ -108,21 +111,33 @@ def main():
     """
     Main function to process all sites for DHR estimation.
     """
-    tower_dir = '../sites'
-    filtered_rm1_dir = './FilterRawData'
-    rm1_dir = './RM1_data'
-    save_dhr_dir = './OUTPUT_dhr_bhr_tocr'
+    tower_dir = '/mount/internal/work-st/projects/jrc-066/1953-s2gm/src/gbov/sites'
+    filtered_rm1_dir = '/mount/internal/work-st/projects/jrc-066/1953-s2gm/GBOV-RM1-LP/FilterRawData'
+    rm1_dir = '/mount/internal/work-st/projects/jrc-066/1953-s2gm/GBOV-RM1-LP/RM01'
+    save_dhr_dir = '/mount/internal/work-st/projects/jrc-066/1953-s2gm/GBOV-RM1-LP/OUTPUT_dhr_bhr_tocr'
 
     if not os.path.exists(save_dhr_dir):
         os.makedirs(save_dhr_dir)
 
-    alpha_dhr = 0.15
-    alpha_bhr = 0.85
+    alpha_dhr = 0.15 #increase if I want more values
+    alpha_bhr = 0.85 #decrease if I want more values
     print('Start processing all sites')
+
+    output_filelist = []
+    for file in os.listdir(save_dhr_dir):
+        if file.endswith('csv'):
+            output_filelist.append(file.split("/")[-1])
 
     for filename in os.listdir(rm1_dir):
 
-        if filename.endswith('csv') & (sys.argv[1] in filename):
+        not_yet_processed = True
+        n_output = 0
+        for output_file in output_filelist:
+            if output_file.split('_')[2] == filename.split('_')[2]:
+                n_output += 1
+        if n_output == 3: not_yet_processed = False
+
+        if filename.endswith('csv') and not_yet_processed:
 
             dhr_values, bhr_values, albedo_dates = [], [], []
             tocr_values, tocr_dates = [], []
@@ -161,8 +176,9 @@ def main():
                         print('Calculating TOC_R')
                         toc_r = cal_tower_tocr(data, start_date, nominal_date, end_date, lat, lon, alpha_dhr, alpha_bhr)
 
-                        tocr_dates.append(nominal_date)
-                        tocr_values.append(toc_r)
+                        if not np.isnan(toc_r):
+                            tocr_dates.append(nominal_date)
+                            tocr_values.append(toc_r)
 
                     except:
                         print('NO enough data for TOC_R calculation')
@@ -171,14 +187,15 @@ def main():
                         print('Calculating DHR and BHR')
                         (dhr_value, bhr_value) = cal_tower_dhr_bhr(data, start_date, nominal_date, end_date, lat, lon, alpha_dhr, alpha_bhr)
 
-                        albedo_dates.append(nominal_date)
-                        dhr_values.append(dhr_value)
-                        bhr_values.append(bhr_value)
+                        if not np.isnan(dhr_value) and not np.isnan(dhr_value):
+                            albedo_dates.append(nominal_date)
+                            dhr_values.append(dhr_value)
+                            bhr_values.append(bhr_value)
 
                     except:
                         print('NO enough data for DHR BHR calculation')
 
-            # if number of valid tocr_values is less than 10, then interpolate between the first and last valid tocr_values based on tocr_dates
+            # if number of valid tocr_values is less than 12, then interpolate between the first and last valid tocr_values based on tocr_dates
             # tocr_dates is a list of strings, in the format of YYYY-MM-DD. Convert before using np.interp
             if len(np.asarray(tocr_values)[~np.isnan(tocr_values)]) < 12:
 
@@ -198,9 +215,9 @@ def main():
                     tocr_dates_datetime[valid_indices],
                     np.asarray(tocr_values)[valid_indices])
 
-            # if number of valid dhr_values is less than 10, then interpolate between the first and last valid dhr_values based on albedo_dates
+            # if number of valid dhr_values is less than 12, then interpolate between the first and last valid dhr_values based on albedo_dates
             # albedo_dates is a list of strings, in the format of YYYY-MM-DD. Convert before using np.interp
-            if len(np.asarray(dhr_values)[~np.isnan(dhr_values)]) < 24:
+            if len(np.asarray(dhr_values)[~np.isnan(dhr_values)]) < 12:
 
                     print('Interpolating DHR values')
                     albedo_dates_datetime = [datetime.datetime.strptime(date, "%Y-%m-%d") for date in albedo_dates]
@@ -218,7 +235,7 @@ def main():
                         albedo_dates_datetime[valid_indices],
                         np.asarray(dhr_values)[valid_indices])
 
-            # if number of valid bhr_values is less than 10, then interpolate between the first and last valid bhr_values based on albedo_dates
+            # if number of valid bhr_values is less than 12, then interpolate between the first and last valid bhr_values based on albedo_dates
             # albedo_dates is a list of strings, in the format of YYYY-MM-DD. Convert before using np.interp
             if len(np.asarray(bhr_values)[~np.isnan(bhr_values)]) < 12:
 
@@ -259,7 +276,6 @@ def main():
             plot_dhr(dhr_values, albedo_dates, f'{save_dhr_dir}/{filename[:-4]}_DHR.png')
             plot_bhr(bhr_values, albedo_dates, f'{save_dhr_dir}/{filename[:-4]}_BHR.png')
             plot_tocr(tocr_values, tocr_dates, f'{save_dhr_dir}/{filename[:-4]}_TOC_R.png')
-
 
 if __name__ == "__main__":
     main()

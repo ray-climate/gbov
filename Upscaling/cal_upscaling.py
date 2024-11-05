@@ -5,76 +5,81 @@
 # @Email:       rui.song@physics.ox.ac.uk
 # @Time:        05/12/2023 22:35
 
-from cloud_filtering import cal_cloud_covering_ratio
 import matplotlib.pyplot as plt
 from datetime import datetime
-from osgeo import gdal
+from osgeo import gdal, osr
 import pandas as pd
 import numpy as np
 import csv
 import utm
 import os
+import sys
 from random import random
+from IPython import embed
+
+sys.path.append("/mount/internal/work-st/projects/jrc-066/1953-s2gm/src/gbov/Upscaling")
+from cloud_filtering import cal_cloud_covering_ratio
+
 
 # tower coordinate dic.
 tower_coordinate = {}
 tower_coordinate['Brasschaat'] = [51.3075, 4.5199, 'BRAS']
 tower_coordinate['CumberlandPlain'] = [-33.6152, 150.7236, 'CUMB']
 tower_coordinate['RobsonCreekRainforest'] = [-17.11747, 145.6301, 'ROBS']
-tower_coordinate['Calperum'] = [-34.0027008056641, 140.587707519531, 'CALP']
+tower_coordinate['Calperum'] = [-34.0027008056641, 140.587707519531, 'CPRM']
 tower_coordinate['Hainich'] = [51.070, 10.450, 'HAIN']
 tower_coordinate['Payerne'] = [46.815, 6.944, 'PAYE']
-tower_coordinate['NiwotRidgeForest'] = [40.03287, -105.5469, 'NIWO']
+tower_coordinate['NiwotRidgeForest'] = [40.03287, -105.5469, 'NRFT']
 tower_coordinate['LitchfieldSavanna'] = [-13.1790, 130.7945, 'LITC']
 tower_coordinate['DryRiver'] = [-15.2588, 132.3706, 'DRYR']
-tower_coordinate['SiouxFallsSurfRad'] = [43.730, -96.620, 'SIOU']
+tower_coordinate['SiouxFallsSurfRad'] = [43.730, -96.620, 'SFSD']
 tower_coordinate['Izana'] = [28.30935, -16.49926, 'IZAN']
 tower_coordinate['Grignon'] = [48.8442192077637, 1.9519100189209, 'GRIG']
-tower_coordinate['GreatWesternWoodland'] = [-30.1913, 120.6541, 'GREA']
-tower_coordinate['GoodwinCreek'] = [34.255, -89.873, 'GOOD']
-tower_coordinate['FortPeck'] = [48.308, -105.102, 'FORT']
-tower_coordinate['DesertRock'] = [36.624, -116.019, 'DESE']
+tower_coordinate['GreatWesternWoodland'] = [-30.1913, 120.6541, 'GWWO']
+tower_coordinate['GoodwinCreek'] = [34.255, -89.873, 'GCMK']
+tower_coordinate['FortPeck'] = [48.308, -105.102, 'FPEK']
 tower_coordinate['Renon'] = [46.5869, 11.4337, 'RENO']
 tower_coordinate['Gobabeb'] = [-23.5618361, 15.0413138888889, 'GOBA']
-tower_coordinate['DesertRock'] = [36.624, -116.019, 'DESE']
+tower_coordinate['DesertRock'] = [36.624, -116.019, 'DRAK']
 tower_coordinate['Cabauw'] = [51.9711, 4.9267, 'CABA']
-tower_coordinate['TableMountain'] = [40.125, -105.237, 'TABL']
+tower_coordinate['TableMountain'] = [40.125, -105.237, 'TBLN']
 tower_coordinate['Bondville'] = [40.052, -88.373, 'BOND']
-tower_coordinate['Ny-Alesund'] = [78.925, 11.93, 'NYAL']
+tower_coordinate['Ny-Alesund'] = [78.925, 11.93, 'NYAD']
 tower_coordinate['Barrow'] = [71.323, -156.607, 'BARR']
-tower_coordinate['RockSprings'] = [40.720, -77.931, 'ROCK']
+tower_coordinate['RockSprings'] = [40.720, -77.931, 'PSUS']
 tower_coordinate['SouthernGreatPlains'] = [36.605, -97.488, 'SGPL']
 tower_coordinate['Fyodorovskoye'] = [56.4476, 32.9019, 'FYOD']
+tower_coordinate['Tumbarumba'] = [-35.65652, 148.15163, 'TUMB']
 
 # instrument and canopy height.
 canopy_height = {}
 canopy_height['Brasschaat'] = [40., 21., 'BRAS']
 canopy_height['CumberlandPlain'] = [30., 23., 'CUMB']
 canopy_height['RobsonCreekRainforest'] = [40., 23., 'ROBS']
-canopy_height['Calperum'] = [20., 3., 'CALP']
+canopy_height['Calperum'] = [20., 3., 'CPRM']
 canopy_height['Hainich'] = [42., 9., 'HAIN']
 canopy_height['Payerne'] = [2., 0., 'PAYE']
-canopy_height['NiwotRidgeForest'] = [12., 0., 'NIWO']
+canopy_height['NiwotRidgeForest'] = [12., 0., 'NRFT']
 canopy_height['LitchfieldSavanna'] = [31., 0., 'LITC']
 canopy_height['DryRiver'] = [15., 0.3, 'DRYR']
-canopy_height['SiouxFallsSurfRad'] = [10., 0., 'SIOU']
+canopy_height['SiouxFallsSurfRad'] = [10., 0., 'SFSD']
 canopy_height['Izana'] = [2., 0., 'IZAN']
 canopy_height['Grignon'] = [2., 0., 'GRIG']
-canopy_height['GreatWesternWoodland'] = [35., 0., 'GREA']
-canopy_height['GoodwinCreek'] = [10., 0., 'GOOD']
-canopy_height['FortPeck'] = [10., 0., 'FORT']
-canopy_height['DesertRock'] = [10., 0., 'DESE']
+canopy_height['GreatWesternWoodland'] = [35., 0., 'GWWO']
+canopy_height['GoodwinCreek'] = [10., 0., 'GCMK']
+canopy_height['FortPeck'] = [10., 0., 'FPEK']
+canopy_height['DesertRock'] = [10., 0., 'DRAK']
 canopy_height['Renon'] = [24., 12., 'RENO']
 canopy_height['Gobabeb'] = [2., 0., 'GOBA']
-canopy_height['DesertRock'] = [10., 0., 'DESE']
 canopy_height['Cabauw'] = [2., 0., 'CABA']
-canopy_height['TableMountain'] = [10., 0., 'TABL']
+canopy_height['TableMountain'] = [10., 0., 'TBLN']
 canopy_height['Bondville'] = [10., 0., 'BOND']
-canopy_height['Ny-Alesund'] = [2., 0., 'NYAL']
+canopy_height['Ny-Alesund'] = [2., 0., 'NYAD']
 canopy_height['Barrow'] = [10., 0., 'BARR']
-canopy_height['RockSprings'] = [10., 0., 'ROCK']
+canopy_height['RockSprings'] = [10., 0., 'PSUS']
 canopy_height['SouthernGreatPlains'] = [10., 0., 'SGPL']
 canopy_height['Fyodorovskoye'] = [10., 2., 'FYOD']
+canopy_height['Tumbarumba'] = [68., 40., 'TUMB']
 
 
 # a function to generate RGB quicklook image for each site using blue (B2), green (B3), red (B4) bands.
@@ -128,7 +133,7 @@ def find_closest_date_file(target_date, sentinel2_list):
 
     return closest_file
 
-def s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CR_lat, CR_lon, upscaling_factor):
+def s2_to_CGLS_aggregation(zone, sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CR_lat, CR_lon, upscaling_factor):
 
     CGLS_resolution = 1. / 112.
     # print("Calculating upscaled coarse-resolution value at (%s, %s)"%(CR_lat, CR_lon))
@@ -138,8 +143,8 @@ def s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CR
     LeftBoundaryLon = CR_lon - CGLS_resolution / 2.
     RightBoundaryLon = CR_lon + CGLS_resolution / 2.
 
-    ULBoundaryUTM = utm.from_latlon(UpperBoundaryLat, LeftBoundaryLon)
-    LRBoundaryUTM = utm.from_latlon(LowerBoundaryLat, RightBoundaryLon)
+    ULBoundaryUTM = utm.from_latlon(UpperBoundaryLat, LeftBoundaryLon, force_zone_number=abs(zone))
+    LRBoundaryUTM = utm.from_latlon(LowerBoundaryLat, RightBoundaryLon, force_zone_number=abs(zone))
 
     UpperBoundaryUTM = ULBoundaryUTM[1]
     LeftBoundaryUTM = ULBoundaryUTM[0]
@@ -157,8 +162,7 @@ def s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CR
 
     return UpscaledValue
 
-def upscale_to_CGLS(tower_lat, tower_lon, sentinel2_base_ref_values, upscaling_factor, utm_x_mesh, utm_y_mesh):
-
+def upscale_to_CGLS(zone, tower_lat, tower_lon, sentinel2_base_ref_values, upscaling_factor, utm_x_mesh, utm_y_mesh):
     # Constants for CGLS grid resolution
     CGLS_resolution = 1. / 112.
 
@@ -182,9 +186,8 @@ def upscale_to_CGLS(tower_lat, tower_lon, sentinel2_base_ref_values, upscaling_f
                 # print('CGLS grid: ', global_lat_linspace[lat_idx], global_lon_linspace[lon_idx])
 
     retrieval_CGLS_resolution = np.zeros((len(CGLS_grid)))
-    #
     for j in range(len(CGLS_grid)):
-        retrieval_CGLS_resolution[j] = s2_to_CGLS_aggregation(sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CGLS_grid[j][0], CGLS_grid[j][1], upscaling_factor)
+        retrieval_CGLS_resolution[j] = s2_to_CGLS_aggregation(zone, sentinel2_base_ref_values, utm_x_mesh, utm_y_mesh, CGLS_grid[j][0], CGLS_grid[j][1], upscaling_factor)
         print('upscaled value at (lat, lon) = (%s, %s) is %s' %(CGLS_grid[j][0], CGLS_grid[j][1], retrieval_CGLS_resolution[j]))
 
     return CGLS_grid, retrieval_CGLS_resolution
@@ -224,7 +227,12 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     geotransform = dhr_b02.GetGeoTransform()
     projection = dhr_b02.GetProjection()
 
-    tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
+    # Create a spatial reference object
+    srs = osr.SpatialReference()
+    srs.ImportFromWkt(projection)
+    zone = srs.GetUTMZone()
+
+    tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon, force_zone_number=abs(zone))
 
     print('tower_utm_x, tower_utm_y: ', tower_utm_x, tower_utm_y)
     xOrigin = geotransform[0]
@@ -236,7 +244,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     UL_y = yOrigin
     LR_x = xOrigin + dhr_b02.RasterXSize * pixelWidth
     LR_y = yOrigin + dhr_b02.RasterYSize * pixelHeight
-    # print('UL_x, UL_y, LR_x, LR_y: ', UL_x, UL_y, LR_x, LR_y)
+    print('UL_x, UL_y, LR_x, LR_y: ', UL_x, UL_y, LR_x, LR_y)
 
     x_indices = np.linspace(UL_x, LR_x, dhr_b02.RasterXSize + 1)
     y_indices = np.linspace(UL_y, LR_y, dhr_b02.RasterYSize + 1)
@@ -255,7 +263,7 @@ def dhr_correction(sentinel2_dir, height_tower, height_canopy, dhr_tower, lat, l
     print('DHR upscaling factor: ', upscaling_factor)
     create_rgb_quicklook(dhr_b02.ReadAsArray(), dhr_b03.ReadAsArray(), dhr_b04.ReadAsArray(), os.path.join(OUTPUT_dir, 'rgb_%s.png' %upscaling_datetime))
 
-    (CGLS_grid, corrected_dhr_CGLS_resolution) = upscale_to_CGLS(lat, lon, dhr_sw, upscaling_factor, col_mesh, row_mesh)
+    (CGLS_grid, corrected_dhr_CGLS_resolution) = upscale_to_CGLS(zone, lat, lon, dhr_sw, upscaling_factor, col_mesh, row_mesh)
 
     return CGLS_grid, corrected_dhr_CGLS_resolution
 
@@ -294,7 +302,12 @@ def bhr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, l
     geotransform = bhr_b02.GetGeoTransform()
     projection = bhr_b02.GetProjection()
 
-    tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
+    # Create a spatial reference object
+    srs = osr.SpatialReference()
+    srs.ImportFromWkt(projection)
+    zone = srs.GetUTMZone()
+
+    tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon, force_zone_number=abs(zone))
 
     xOrigin = geotransform[0]
     yOrigin = geotransform[3]
@@ -322,7 +335,7 @@ def bhr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, l
     upscaling_factor = bhr_tower / np.nanmean(bhr_sw_fov[bhr_sw_fov > 0.])
     print('BHR upscaling factor: ', upscaling_factor)
 
-    (CGLS_grid, corrected_bhr_CGLS_resolution) = upscale_to_CGLS(lat, lon, bhr_sw, upscaling_factor, col_mesh, row_mesh)
+    (CGLS_grid, corrected_bhr_CGLS_resolution) = upscale_to_CGLS(zone, lat, lon, bhr_sw, upscaling_factor, col_mesh, row_mesh)
 
     return CGLS_grid, corrected_bhr_CGLS_resolution
 
@@ -361,7 +374,12 @@ def tocr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, 
     geotransform = tocr_b02.GetGeoTransform()
     projection = tocr_b02.GetProjection()
 
-    tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon)
+    # Create a spatial reference object
+    srs = osr.SpatialReference()
+    srs.ImportFromWkt(projection)
+    zone = srs.GetUTMZone()
+
+    tower_utm_x, tower_utm_y, _, _ = utm.from_latlon(lat, lon, force_zone_number=abs(zone))
 
     xOrigin = geotransform[0]
     yOrigin = geotransform[3]
@@ -389,28 +407,32 @@ def tocr_correction(sentinel2_dir, height_tower, height_canopy, bhr_tower, lat, 
     upscaling_factor = bhr_tower / np.nanmean(tocr_sw_fov[tocr_sw_fov > 0.])
     print('ToC-R upscaling factor: ', upscaling_factor)
 
-    (CGLS_grid, corrected_tocr_CGLS_resolution) = upscale_to_CGLS(lat, lon, tocr_sw, upscaling_factor, col_mesh, row_mesh)
+    (CGLS_grid, corrected_tocr_CGLS_resolution) = upscale_to_CGLS(zone, lat, lon, tocr_sw, upscaling_factor, col_mesh, row_mesh)
 
     return CGLS_grid, corrected_tocr_CGLS_resolution
 
 
 def main():
 
-    tower_retrieval_dir = '../ReferenceMeasurements/OUTPUT_dhr_bhr_tocr'
-    sentinel2_dir = '/gws/nopw/j04/gbov/ruis/gbov/Sentinel2'
-    OUTPUT_dir = './OUTPUT'
+    tower_retrieval_dir = '/mount/internal/work-st/projects/jrc-066/1953-s2gm/GBOV-RM1-LP/OUTPUT_dhr_bhr_tocr'
+    sentinel2_dir = '/mount/internal/work-st/projects/jrc-066/1953-s2gm/SIAC-Albedo/Data/S2GM/GBOV'
+    OUTPUT_dir = '/mount/internal/work-st/projects/jrc-066/1953-s2gm/GBOV-RM1-LP/LP01-02'
     cloud_ratio_threshold = 0.2
 
     os.makedirs(OUTPUT_dir, exist_ok=True)
 
     upscale_filelist = []
     for file in os.listdir(tower_retrieval_dir):
-        if file.endswith('GBOV_RM01_Fyodorovskoye_001_20180101T000000Z_20221231T203000Z_087_ACR_V2.0_DHR.csv'):
+        upscale_filelist.append("_".join(file.split("_")[:9]))
 
-            upscale_filelist.append(file[:-8])
-            print('Site to be upscaled: ', file[:-8])
+    upscale_filelist = list(set(upscale_filelist))
+    filtered_list = []
+    for file in upscale_filelist:
+        if not os.path.isdir(os.path.join(OUTPUT_dir, file.split('_')[2])):
+            filtered_list.append(file)
+            print('Site to be upscaled: ', file)
 
-    for tower_file in upscale_filelist:
+    for tower_file in filtered_list:
 
         dhr_file = os.path.join(tower_retrieval_dir, tower_file + '_DHR.csv')
         bhr_file = os.path.join(tower_retrieval_dir, tower_file + '_BHR.csv')
@@ -433,8 +455,8 @@ def main():
         bhr_data = pd.read_csv(bhr_file)
         tocr_data = pd.read_csv(tocr_file)
 
-        # iterate through each row in dhr_data
-        for (index_dhr, row_dhr), (index_bhr, row_bhr), (index_tocr, row_tocr) in zip(dhr_data.iterrows(), bhr_data.iterrows(), tocr_data.iterrows()):
+        # iterate through each row in dhr_data and bhr_data
+        for (index_dhr, row_dhr), (index_bhr, row_bhr) in zip(dhr_data.iterrows(), bhr_data.iterrows()):
 
             if index_dhr == 0:
                 sentinel2_list = []
@@ -454,7 +476,6 @@ def main():
                     year_increment += 1
 
             # print('Sentinel2 list: ', sentinel2_list)
-
             if (row_dhr['DHR'] > 0) & (row_bhr['BHR'] > 0):
 
                 year_str = row_dhr['Datetime'].split('-')[0]
@@ -486,16 +507,37 @@ def main():
                     for k in range(len(CGLS_grid)):
                         writer.writerow((CGLS_grid[k][0], CGLS_grid[k][1], corrected_dhr_CGLS_resolution[k], corrected_dhr_CGLS_resolution[k] * total_unc, corrected_bhr_CGLS_resolution[k], corrected_bhr_CGLS_resolution[k] * total_unc))
 
-            if (row_tocr['TOC_R'] > 0):
+        # iterate through each row in tocr_data
+        for index_tocr, row_tocr in tocr_data.iterrows():
+
+            if index_tocr == 0:
+                sentinel2_list = []
+                year_int = int(row_tocr['Datetime'].split('-')[0])
+                year_increment = 0
+                while year_increment <= 3:
+                    year_int = year_int + year_increment
+                    # check if os.path.join(sentinel2_dir, site_code, str(year_int)) exists
+                    if os.path.exists(os.path.join(sentinel2_dir, site_code, str(year_int))):
+                        for file in os.listdir(os.path.join(sentinel2_dir, site_code, str(year_int))):
+                            if os.path.isdir(os.path.join(sentinel2_dir, site_code, str(year_int), file)):
+                                cloud_ratio = cal_cloud_covering_ratio(
+                                    os.path.join(sentinel2_dir, site_code, str(year_int), file))
+                                # print('Cloud ratio for %s: ' %file, cloud_ratio)
+                                if cloud_ratio < cloud_ratio_threshold:
+                                    sentinel2_list.append(file)
+                    year_increment += 1
+
+            if row_tocr['TOC_R'] > 0:
 
                 year_str = row_tocr['Datetime'].split('-')[0]
-                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, closest_file.split('_')[2][0:4])
 
-                # file in sentinel2_site_dir has YYYYMMDD after the second underscore, find the file with the date closest to the datetime in dhr_data
+                # file in sentinel2_site_dir has YYYYMMDD after the second underscore, find the file with the date closest to the datetime in tocr_data
 
                 # Convert the date string to a datetime object
                 row_date = datetime.strptime(row_tocr['Datetime'].replace('-', ''), '%Y%m%d')
                 closest_file = find_closest_date_file(row_date, sentinel2_list)
+
+                sentinel2_site_dir = os.path.join(sentinel2_dir, site_code, closest_file.split('_')[2][0:4])
 
                 if closest_file:
                     print('Upscale datetime using Sentinel2 data: ', row_tocr['Datetime'],
